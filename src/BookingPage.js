@@ -8,7 +8,6 @@ import { Button } from 'primereact/button';
 import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputNumber } from 'primereact/inputnumber';
 import { AuthContext, ToastContext } from "./App";
 import { formatDate, formatDateToDisplay, capitalize } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -35,7 +34,6 @@ const BookingPage = (props) => {
   const [superiorInput, setSuperiorInput] = useState(0)
   const [suiteInput, setSuiteInput] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0);
-  const [roomTypeArray, setRoomTypeArray] = useState([])
   const [bookingSuccess, setBookingSuccess] = useState(false)
   const [bookingDetails, setBookingDetails] = useState({})
 
@@ -63,7 +61,7 @@ const BookingPage = (props) => {
   // ###############################################
   // FUNZIONI AUSILIARIE
   // ###############################################
-  // FUNZIONE CHE PRENDE IN INGRESSO UNA DATA E RESTITUISCE LA STESSA DATA + 1 GIORNO
+  // Funzione che restituisce la data + 1 giorno
   const datePlusOne = (date) => {
     let futureDate = new Date(date)
     futureDate.setDate(futureDate.getDate() + 1)
@@ -71,7 +69,7 @@ const BookingPage = (props) => {
     return futureDate
   }
 
-
+  // Funzione che formatta il prezzo in valuta
   const formatPrice = (price) => {
     return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(price);
   };
@@ -87,86 +85,71 @@ const BookingPage = (props) => {
 
       case 'suite':
         return suiteInput;
+      default:
+        return 0;
     }
   }
 
-  // Funzione che gestisce il cambio di valore dell'inputNumber, aggiornando il prezzo totale e l'array di tipi di stanza selezionati
-  const onInputNumberChange = (room, roomType, e) => {
-
+  // Funzione che gestisce il cambio di valore delle dropdown, aggiornando il prezzo totale
+  const onDropdownChange = (room, roomType, e) => {
     const newValue = e.value;
+    if (roomType === 'standard') {
+      setStandardInput(newValue)
+    }
+    if (roomType === 'superior') {
+      setSuperiorInput(newValue)
+    }
+
+    if (roomType === 'suite') {
+      setSuiteInput(newValue)
+    }
+
+    const newTotalPrice = calculateNewTotalPrice(roomType, room.price, newValue);
+    setTotalPrice(newTotalPrice);
+  }
+
+  // Funzione che calcola il prezzo totale in base al tipo di stanza, al prezzo della stanza e al nuovo valore selezionato
+  const calculateNewTotalPrice = (roomType, roomPrice, newValue) => {
     const startDateMidnight = new Date(startDate);
     startDateMidnight.setHours(0, 0, 0, 0);
     const endDateMidnight = new Date(endDate);
     endDateMidnight.setHours(0, 0, 0, 0);
 
-    let stayingDays = (endDateMidnight - startDateMidnight) / (1000 * 60 * 60 * 24);
-    let totalRooms = 0;
-    let typeArrayLocal = JSON.parse(JSON.stringify(roomTypeArray))
+    const stayingDays = (endDateMidnight - startDateMidnight) / (1000 * 60 * 60 * 24);
+    let newTotalPrice = totalPrice - (valueForType(roomType) * roomPrice * stayingDays) + (newValue * roomPrice * stayingDays);
 
-    if (roomType === 'standard') {
-      totalRooms = newValue + superiorInput + suiteInput;
-      if ((newValue > standardInput) && (rooms >= totalRooms)) {
-        setStandardInput(newValue)
-        setTotalPrice(totalPrice + (1 * stayingDays * room.price))
-        typeArrayLocal.push(roomType)
-        setRoomTypeArray(typeArrayLocal)
-      }
-      else if (newValue < standardInput) {
-        setStandardInput(newValue)
-        setTotalPrice(totalPrice + (-1 * stayingDays * room.price))
-        const index = roomTypeArray.indexOf(roomType);
-        if (index > -1) {
-          typeArrayLocal.splice(index, 1);
-        }
-      }
+    return newTotalPrice <= 0 ? 0 : newTotalPrice;
+  }
+
+  // Funzione che restituisce un array di tipi di stanza in base al numero di stanze selezionate
+  const bookingManualRoomsArray = () => {
+    let array = []
+    for (let i = 0; i < standardInput; i++) {
+      array.push('standard')
     }
-
-    if (roomType === 'superior') {
-      totalRooms = standardInput + newValue + suiteInput;
-      if ((newValue > superiorInput) && (rooms >= totalRooms)) {
-        setSuperiorInput(newValue)
-        setTotalPrice(totalPrice + (1 * stayingDays * room.price))
-        typeArrayLocal.push(roomType)
-        setRoomTypeArray(typeArrayLocal)
-      }
-      else if (newValue < superiorInput) {
-        setSuperiorInput(newValue)
-        setTotalPrice(totalPrice + (-1 * stayingDays * room.price))
-        const index = roomTypeArray.indexOf(roomType);
-        if (index > -1) {
-          typeArrayLocal.splice(index, 1);
-        }
-        setRoomTypeArray(typeArrayLocal)
-      }
+    for (let i = 0; i < superiorInput; i++) {
+      array.push('superior')
     }
-
-
-    if (roomType === 'suite') {
-      totalRooms = standardInput + superiorInput + newValue;
-      if ((newValue > suiteInput) && (rooms >= totalRooms)) {
-        setSuiteInput(newValue)
-        setTotalPrice(totalPrice + (1 * stayingDays * room.price))
-        typeArrayLocal.push(roomType)
-        setRoomTypeArray(typeArrayLocal)
-      }
-      else if (newValue < suiteInput) {
-        setSuiteInput(newValue)
-        setTotalPrice(totalPrice + (-1 * stayingDays * room.price))
-        const index = roomTypeArray.indexOf(roomType);
-        if (index > -1) {
-          typeArrayLocal.splice(index, 1);
-        }
-        setRoomTypeArray(typeArrayLocal)
-      }
+    for (let i = 0; i < suiteInput; i++) {
+      array.push('suite')
     }
-
+    return array
   }
 
   // Restituisce il numero massimo di stanze per un determinato tipo.
   const maxRooms = (type) => {
     const element = groupedByType.find(element => element.room_type === type);
-    return element ? Math.min(element.count, rooms) : 0;
+    return element ? element.count : 0;
   }
+
+  // Crea un array di opzioni per il numero di stanze selezionabili in base al tipo di stanza. ritorna il minimo tra le stanze disponibili per tipologia e il numero di stanze richieste.
+  const createRoomOptions = (type) => {
+    let maxRoomAvailable = maxRooms(type);
+
+    let result = Math.min(maxRoomAvailable, rooms);
+    return Array.from({ length: result + 1 }, (_, i) => ({ label: i, value: i }));
+  }
+
 
   // ###############################################
   // HANDLERS
@@ -282,39 +265,47 @@ const BookingPage = (props) => {
   };
 
   const handleBookingManual = async () => {
-    try {
-      if (!userInfo.token && !userInfo.isLogged) {
-        toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
-        props.renderComponent('login')
-      } else {
-        const response = await fetch("http://localhost:5000/book", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + userInfo.token,
-          },
 
-          body: JSON.stringify({
-            check_in: formatDate(startDate),
-            check_out: formatDate(endDate),
-            guests: guests,
-            room_types: roomTypeArray,
-          })
-        })
-
-        const data = await response.json();
-        if (response.ok) {
-          toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
-          setBookingSuccess(true)
-          setBookingDetails(data)
-        } else {
-          toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
-        }
-      }
-    } catch (error) {
-      console.log(error)
-      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+    if (standardInput + superiorInput + suiteInput > rooms) {
+      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di stanze selezionate supera il numero di stanze richieste", life: 3000 });
+    } else if (standardInput + superiorInput + suiteInput < rooms) {
+      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di stanze selezionate è inferiore al numero di stanze richieste", life: 3000 });
     }
+    else
+      try {
+        if (!userInfo.token && !userInfo.isLogged) {
+          toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
+          props.renderComponent('login')
+        } else {
+
+          const response = await fetch("http://localhost:5000/book", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + userInfo.token,
+            },
+
+            body: JSON.stringify({
+              check_in: formatDate(startDate),
+              check_out: formatDate(endDate),
+              guests: guests,
+              room_types: bookingManualRoomsArray(),
+            })
+          })
+
+          const data = await response.json();
+          if (response.ok) {
+            toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
+            setBookingSuccess(true)
+            setBookingDetails(data)
+          } else {
+            toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
+          }
+        }
+      } catch (error) {
+        console.log(error)
+        toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+      }
 
   };
 
@@ -344,7 +335,6 @@ const BookingPage = (props) => {
     setSuiteInput(0)
     setTotalPrice(0)
     setManualChoiche(false)
-    setRoomTypeArray([])
     setBookingSuccess(false)
     setBookingDetails({})
   }
@@ -496,9 +486,8 @@ const BookingPage = (props) => {
   };
 
   const numberRooms = (room) => {
-    return <div className="-mt-1 -my-2">
-      <InputNumber value={valueForType(room.room_type)} onValueChange={(e) => { onInputNumberChange(room, room.room_type, e) }} min={0} max={maxRooms(room.room_type)} showButtons buttonLayout="vertical"
-        decrementButtonClassName="p-button-secondary" incrementButtonClassName="p-button-secondary" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" className='w-3rem p-1' />
+    return <div className='flex flex-row align-items-center justify-content-end' style={{ overflow: 'hidden' }}>
+      <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length <= rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
     </div>
   }
 
@@ -506,7 +495,7 @@ const BookingPage = (props) => {
     if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && manualChoiche && !bookingSuccess) {
       return (
         <div >
-          <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0" >
+          <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
             <DataTable value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
               <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
               <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
@@ -562,7 +551,7 @@ const BookingPage = (props) => {
         <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 w-full surface-200" style={{ height: '2.5rem' }}>
           <div className="flex flex-row justify-content-end m-2">
             <div className='flex align-items-center justify-content-center'>Totale Soggiorno:</div>
-            <div className='flex align-items-center justify-content-center ml-1'>{bookingDetails.total_price}€</div>
+            <div className='flex align-items-center justify-content-center ml-1'>{formatPrice(bookingDetails.total_price)}</div>
           </div>
         </div>
       );
@@ -572,7 +561,7 @@ const BookingPage = (props) => {
           <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-5 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
             <DataTable value={roomData} header={headerSuccess} footer={footerSuccess} className="p-datatable-sm">
               <Column align={'left'} className='font-bold' field="type" header="Tipo" />
-              <Column align={'center'} field="count" header="Stanze Prenotate" />
+              <Column align={'center'} className='font-bold' field="count" header="Stanze Prenotate" />
               <Column align={'center'} header="Foto" body={(rowData) => <img src={`/${rowData.type}.jpg`} alt={rowData.type} style={{ width: '100px', height: 'auto' }} />} />
             </DataTable>
             <Button label="Torna alla Home" icon="pi pi-home" className="p-button-raised p-button-primary mt-3" onClick={resetBookingSuccesful} />
@@ -587,7 +576,7 @@ const BookingPage = (props) => {
     <>
       <BlockUI blocked={blocked} className='mt-8' template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '4rem' }}></i>}>
         {renderBookingPage()}
-        <div className="flex align-items-center justify-content-center fadein animation-duration-500" >
+        <div className="flex align-items-center justify-content-center fadein animation-duration-500 overflow-hidden" >
           {renderRoomsSuggestions()}
           {renderManualChoiche()}
           {renderBookingSuccess()}

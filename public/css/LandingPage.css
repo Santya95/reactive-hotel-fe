@@ -1,0 +1,44 @@
+.full-page {
+  height: 100vh;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  clip-path: polygon(8% 0, 100% 0%, 100% 100%, 0 100%);
+}
+
+@media (max-width: 768px) {
+  .hero-image {
+    clip-path: none;
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .higher-text {
+    margin-bottom: 20rem;
+    margin-left: 20rem;
+  }
+}
+
+.footer {
+  background-color: #e9f3fa;
+  margin-top: auto; /* Push the footer to the bottom */
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.footer-links a {
+  color: #007ad9;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}

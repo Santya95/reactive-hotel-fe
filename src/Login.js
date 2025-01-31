@@ -48,7 +48,7 @@ const Login = (props) => {
         e.preventDefault();
         try {
             setBlocked(true);
-            const response = await fetch("http://localhost:5000/login", {
+            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -87,7 +87,7 @@ const Login = (props) => {
         }
         try {
             setBlocked(true);
-            const response = await fetch("http://localhost:5000/register", {
+            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

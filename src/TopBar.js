@@ -29,7 +29,6 @@ const TopBar = (props) => {
         props.renderComponent('landingPage')
     }
 
-
     return (
         <div className="w-full p-3 shadow-2 flex align-items-center justify-content-between absolute top-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white', padding: '1rem 2rem', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', zIndex: 1000 }} >
             <Button icon="pi pi-list" className="p-button-secondary p-button-outlined -ml-2 md:ml-0" onClick={() => setSidebarVisible(true)} style={{ borderColor: 'white', color: 'white' }} />
@@ -76,7 +75,7 @@ const TopBar = (props) => {
                                                 </li>
                                                 {userInfo.token && userInfo.isLogged ?
                                                     <div>
-                                                        <li>
+                                                        <li onClick={(e) => { props.renderComponent('manageBookings'); hide(e) }}>
                                                             <a className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-200 transition-duration-150 transition-colors w-full">
                                                                 <i className="font-semibold pi pi-file-edit mr-2"></i>
                                                                 <span className="font-medium mr-2">Gestisci Prenotazioni</span>

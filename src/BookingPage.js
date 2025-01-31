@@ -160,6 +160,7 @@ const BookingPage = (props) => {
     const check_in = formatDate(startDate);
     const check_out = formatDate(endDate);
 
+    // Funzione che raggruppa le stanze per tipo
     const groupByRoomType = (rooms) => {
       const groupedRooms = {};
       rooms.forEach(room => {
@@ -184,7 +185,7 @@ const BookingPage = (props) => {
 
     try {
       setBlocked(true)
-      const response = await fetch("http://localhost:5000/rooms_per_type_and_suggestion", {
+      const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/rooms_per_type_and_suggestion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +202,6 @@ const BookingPage = (props) => {
       const data = await response.json();
       if (response.ok) {
         setRoomsSuggestions(data)
-        console.log(data)
         setGroupedByType(data.room_type_counts)
         setGropuedByTypeCombination(groupByRoomType(data.selected_combination))
         setBlocked(false)
@@ -233,7 +233,7 @@ const BookingPage = (props) => {
         props.renderComponent('login')
       } else {
 
-        const response = await fetch("http://localhost:5000/book", {
+        const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -278,7 +278,7 @@ const BookingPage = (props) => {
           props.renderComponent('login')
         } else {
 
-          const response = await fetch("http://localhost:5000/book", {
+          const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -462,8 +462,8 @@ const BookingPage = (props) => {
             <DataView header={header()} footer={footer()} value={gropuedByTypeCombination} style={{ width: "95vw" }} listTemplate={listTemplate} rows={3} />
           </div>
           <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
-            <Button label="Personalizza Scelta Stanza" icon={"pi pi-pen-to-square"} onClick={() => switchSuggestedManual()} className="p-button-raised p-button-secondary w-10rem" />
-            <Button label="Prenota" onClick={handleBookingSuggestion} icon={"pi pi-check"} className="p-button-raised p-button-primary w-8rem" />
+            <Button label="Personalizza Scelta Stanza" icon={"pi pi-pen-to-square"} onClick={switchSuggestedManual} className="p-button-raised p-button-secondary w-10rem" />
+            <Button label="Prenota" onClick={handleBookingSuggestion} icon={"pi pi-check"} className="p-button-raised p-button-primary w-10rem" />
           </div>
         </div>
       );
@@ -471,11 +471,11 @@ const BookingPage = (props) => {
   }
 
   const imageBodyTemplate = (room) => {
-    return <img src={`/${room.room_type}.jpg`} alt={room.room_type} className="w-8rem shadow-2 border-round" />;
+    return <img src={`/${room.room_type}.jpg`} alt={room.room_type} className="w-8rem shadow-2 border-round -mr-3 md:mr-0" />;
   };
 
   const roomDetails = (room) => {
-    return <div className='flex flex-column align-items-center justify-content-center -mr-2'>
+    return <div className='flex flex-column align-items-center justify-content-center -mr-3 md:ml-0 -ml-2'>
       <div className='text-xl font-bold'>{capitalize(room.room_type)}</div>
       <div className="text-sm -mt-1">Max {room.capacity} Ospiti</div>
       <div className='flex flex-column align-items-center justify-content-center m-1'>

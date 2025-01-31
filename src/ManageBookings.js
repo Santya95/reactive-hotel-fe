@@ -26,6 +26,7 @@ const ManageBookings = (props) => {
     const [endDate, setEndDate] = useState(null);
     const [guests, setGuests] = useState(2);
     const [rooms, setRooms] = useState(1);
+    const [userBookings, setUserBookings] = useState([]);
     const [roomsSuggestion, setRoomsSuggestions] = useState({})
     const [groupedByType, setGroupedByType] = useState([])
     const [manualChoiche, setManualChoiche] = useState(false)
@@ -59,26 +60,36 @@ const ManageBookings = (props) => {
 
 
     useEffect(() => {
-        fetch("http://localhost:5000/user_bookings", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${userInfo.token}`
-            },
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-
-
-                } else {
-                    toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
-                }
-            })
-            .catch(error => {
-                toast.current.show({ severity: "error", summary: "Ricerca", detail: error.message, life: 3000 });
-            });
+        getUserBooking()
     }, []);
+
+
+    const getUserBooking = async () => {
+
+        try {
+            setBlocked(true)
+            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${userInfo.token}`
+                },
+
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setBlocked(false)
+                console.log(data)
+            } else {
+                setBlocked(false)
+            }
+        } catch (error) {
+            setBlocked(false)
+        }
+    }
+
+
 
     // ###############################################
     // FUNZIONI AUSILIARIE

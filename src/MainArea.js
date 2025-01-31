@@ -1,5 +1,4 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from "./App";
+import React, { useState } from 'react';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -13,18 +12,11 @@ import ManageBookings from './ManageBookings';
 const MainArea = () => {
     // Stati del componente
     const [renderComponent, setRenderComponent] = useState('landingPage');
-    const [renderTopBar, setRenderTopBar] = useState(true);
-
-    // Context
-    const { userInfo } = useContext(AuthContext);
+    const [renderTopBar] = useState(true);
 
     // Callbacks
     const renderComponentCallback = (component) => {
         setRenderComponent(component);
-    }
-
-    const renderTopBarCallback = (boolean) => {
-        setRenderTopBar(boolean);
     }
 
     // Mapping dei componenti

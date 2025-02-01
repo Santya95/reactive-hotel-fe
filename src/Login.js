@@ -62,8 +62,8 @@ const Login = (props) => {
             const data = await response.json();
             if (response.ok) {
                 let userInitials = getUserInitials(data.firstName, data.surname);
-                setUserInfo({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname });
-                sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname }));
+                setUserInfo({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname, bookings: data.bookings });
+                sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname, bookings: data.bookings }));
                 toast.current.show({ severity: "success", summary: "Login", detail: "Login avvenuto con successo", life: 3000 });
                 setBlocked(false);
                 props.renderComponent('bookingPage')

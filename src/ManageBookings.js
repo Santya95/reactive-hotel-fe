@@ -26,7 +26,6 @@ const ManageBookings = (props) => {
     const [endDate, setEndDate] = useState(null);
     const [guests, setGuests] = useState(2);
     const [rooms, setRooms] = useState(1);
-    const [userBookings, setUserBookings] = useState([]);
     const [roomsSuggestion, setRoomsSuggestions] = useState({})
     const [groupedByType, setGroupedByType] = useState([])
     const [manualChoiche, setManualChoiche] = useState(false)
@@ -39,7 +38,7 @@ const ManageBookings = (props) => {
     const [bookingDetails, setBookingDetails] = useState({})
 
     // CONTEXT E USEREF
-    const { userInfo } = useContext(AuthContext);
+    const { userInfo, setUserInfo } = useContext(AuthContext);
     const toast = useContext(ToastContext);
 
     const guestOptions = Array.from({ length: 30 }, (_, i) => ({ label: `${i + 1} Ospit${i > 0 ? 'i' : 'e'}`, value: i + 1 }));
@@ -76,16 +75,18 @@ const ManageBookings = (props) => {
                 },
 
             });
-
             const data = await response.json();
             if (response.ok) {
                 setBlocked(false)
+                setUserInfo({ data })
                 console.log(data)
             } else {
                 setBlocked(false)
+                toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
             }
         } catch (error) {
             setBlocked(false)
+            toast.current.show({ severity: 'error', summary: 'Errore', detail: 'Errore durante la ricerca delle prenotazioni utente' });
         }
     }
 

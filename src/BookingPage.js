@@ -38,7 +38,7 @@ const BookingPage = (props) => {
   const [bookingDetails, setBookingDetails] = useState({})
 
   // CONTEXT E USEREF
-  const { userInfo } = useContext(AuthContext);
+  const { userInfo, setUserInfo } = useContext(AuthContext);
   const toast = useContext(ToastContext);
 
   const guestOptions = Array.from({ length: 30 }, (_, i) => ({ label: `${i + 1} Ospit${i > 0 ? 'i' : 'e'}`, value: i + 1 }));
@@ -210,7 +210,7 @@ const BookingPage = (props) => {
         setBlocked(false)
       }
     } catch (error) {
-      toast.current.show({ severity: "error", summary: "Ricerca", detail: error, life: 3000 });
+      toast.current.show({ severity: "error", summary: "Ricerca", detail: "Errore durante la ricerca", life: 3000 });
       setBlocked(false)
     }
   }
@@ -250,9 +250,11 @@ const BookingPage = (props) => {
 
         const data = await response.json();
         if (response.ok) {
+          console.log(data)
           toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
           setBookingSuccess(true)
-          setBookingDetails(data)
+          setBookingDetails(data.booking_details)
+          setUserInfo({ ...userInfo, bookings: [...userInfo.bookings] })
         } else {
           toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
         }
@@ -297,7 +299,8 @@ const BookingPage = (props) => {
           if (response.ok) {
             toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
             setBookingSuccess(true)
-            setBookingDetails(data)
+            setBookingDetails(data.booking_details)
+            setUserInfo({ ...userInfo, bookings: [...userInfo.bookings] })
           } else {
             toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
           }

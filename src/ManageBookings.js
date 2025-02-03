@@ -7,7 +7,6 @@ import { Button } from 'primereact/button';
 import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { BlockUI } from 'primereact/blockui';
 import { AuthContext, ToastContext } from "./App";
 import { formatDate, formatDateToDisplay, formatPrice } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -65,7 +64,7 @@ const ManageBookings = (props) => {
     const getUserBooking = async () => {
 
         try {
-            props.blockUI(true)
+            props.blockUiCallaback(true)
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
                 method: "GET",
                 headers: {
@@ -76,15 +75,15 @@ const ManageBookings = (props) => {
             });
             const data = await response.json();
             if (response.ok) {
-                props.blockUI(false)
+                props.blockUiCallaback(false)
                 setUserInfo({ ...userInfo, bookings: data })
                 sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data }));
             } else {
-                props.blockUI(false)
+                props.blockUiCallaback(false)
                 toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
             }
         } catch (error) {
-            props.blockUI(false)
+            props.blockUiCallaback(false)
             toast.current.show({ severity: 'error', summary: 'Errore', detail: 'Errore durante la ricerca delle prenotazioni utente' });
         }
     }

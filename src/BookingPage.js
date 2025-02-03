@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { addLocale } from 'primereact/api';
-import { BlockUI } from 'primereact/blockui';
 import { classNames } from 'primereact/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
@@ -180,7 +179,7 @@ const BookingPage = (props) => {
 
 
     try {
-      props.blockUI(true)
+      props.blockUiCallaback(true)
       const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/rooms_per_type_and_suggestion`, {
         method: "POST",
         headers: {
@@ -205,14 +204,14 @@ const BookingPage = (props) => {
           setRooms(data.selected_combination.length)
           toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 6000 });
         }
-        props.blockUI(false)
+        props.blockUiCallaback(false)
       } else {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
-        props.blockUI(false)
+        props.blockUiCallaback(false)
       }
     } catch (error) {
       toast.current.show({ severity: "error", summary: "Ricerca", detail: "Errore durante la ricerca", life: 3000 });
-      props.blockUI(false)
+      props.blockUiCallaback(false)
     }
   }
 
@@ -233,7 +232,7 @@ const BookingPage = (props) => {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
         props.renderComponent('login')
       } else {
-        props.blockUI(true)
+        props.blockUiCallaback(true)
         const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
           method: "POST",
           headers: {
@@ -256,15 +255,15 @@ const BookingPage = (props) => {
           setBookingDetails(data.booking_details)
           setUserInfo({ ...userInfo, bookings: data.user_bookings })
           sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
-          props.blockUI(false)
+          props.blockUiCallaback(false)
         } else {
           toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
-          props.blockUI(false)
+          props.blockUiCallaback(false)
         }
       }
     } catch (error) {
       toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
-      props.blockUI(false)
+      props.blockUiCallaback(false)
     }
 
   };
@@ -282,7 +281,7 @@ const BookingPage = (props) => {
           toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
           props.renderComponent('login')
         } else {
-          props.blockUI(true)
+          props.blockUiCallaback(true)
           const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
             method: "POST",
             headers: {
@@ -306,15 +305,15 @@ const BookingPage = (props) => {
             console.log(data.user_bookings)
             setUserInfo({ ...userInfo, bookings: data.user_bookings })
             sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
-            props.blockUI(false)
+            props.blockUiCallaback(false)
           } else {
             toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
-            props.blockUI(false)
+            props.blockUiCallaback(false)
           }
         }
       } catch (error) {
         toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
-        props.blockUI(false)
+        props.blockUiCallaback(false)
       }
 
   };

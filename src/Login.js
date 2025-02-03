@@ -125,10 +125,10 @@ const Login = (props) => {
     const renderLogin = () => {
         return (
             <div className="flex align-items-center justify-content-center md:mt-2 mt-0 ">
-                <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0 surface-0 p-3 md:p-5">
-                    <div className={isRegistering ? "text-center -mt-3 md:mt-0 md:mb-5 mb-1" : "text-center mb-5 -mt-4 md:mt-0 "}>
+                <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-3 fadein animation-duration-500 m-2 md:md-0 surface-0 p-3 md:p-5">
+                    <div className={isRegistering ? "text-center -mt-3 md:mt-0 md:mb-5 mb-1" : "text-center mb-5 -mt-3 md:mt-0 "}>
                         <img src="/logo512.png" alt="hyper" height={100} />
-                        <div className={isRegistering ? "text-900 text-5xl font-medium mb-1" : "text-900 text-5xl font-medium mb-1 md:mb-5"}>Hotel Reactive</div>
+                        <div className={isRegistering ? "text-900 text-5xl font-medium mb-1" : "text-900 text-5xl font-medium mb-1 md:mb-5"}>Reactive Hotel</div>
                         {isRegistering ? (
                             <>
                                 <span className="text-600 font-medium line-height-3">Hai già un account?</span>

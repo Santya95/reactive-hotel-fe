@@ -64,7 +64,7 @@ const LandingPage = (props) => {
                 <div className="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center -mt-5 md:mt-0">
                     <section className="higher-text">
                         <div className='flex flex-row '>
-                            <span className="block text-6xl font-bold mb-1 ">Reactive Hotel</span>
+                            <span className="block text-6xl font-bold mb-1 line-height-1">Reactive Hotel</span>
                             <img src="/logo512.png" className='mt-5 md:mt-0 ml-2' alt="hyper" height={60} />
                         </div>
                         <div className="text-4xl md:text-6xl text-primary font-bold mb-2 md:mb-3 line-height-1 md:line-heigh-0">la tua vacanza da sogno</div>

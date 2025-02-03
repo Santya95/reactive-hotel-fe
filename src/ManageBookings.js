@@ -21,7 +21,6 @@ const ManageBookings = (props) => {
     // ###############################################
     // STATI DEL COMPONENTE
     // ###############################################
-    const [blocked, setBlocked] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [guests, setGuests] = useState(2);
@@ -66,7 +65,7 @@ const ManageBookings = (props) => {
     const getUserBooking = async () => {
 
         try {
-            setBlocked(true)
+            props.blockUI(true)
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
                 method: "GET",
                 headers: {
@@ -77,15 +76,15 @@ const ManageBookings = (props) => {
             });
             const data = await response.json();
             if (response.ok) {
-                setBlocked(false)
+                props.blockUI(false)
                 setUserInfo({ ...userInfo, bookings: data })
                 sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data }));
             } else {
-                setBlocked(false)
+                props.blockUI(false)
                 toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
             }
         } catch (error) {
-            setBlocked(false)
+            props.blockUI(false)
             toast.current.show({ severity: 'error', summary: 'Errore', detail: 'Errore durante la ricerca delle prenotazioni utente' });
         }
     }
@@ -139,7 +138,7 @@ const ManageBookings = (props) => {
         if (userInfo.bookings && userInfo.bookings.length > 0 && userInfo.isLogged && userInfo.token) {
             return (
                 <div >
-                    <div className="flex mt-6 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
+                    <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:m-0">
                         <DataTable stripedRows scrollable scrollHeight='60vh' value={userInfo.bookings} header={header} footer={footer} style={{ width: "95vw" }}>
                             <Column body={bodyTemplateDates} header="Date Soggiorno" ></Column>
                             <Column header="Numero Stanze" body={bodyTemplateGuestRooms}></Column>
@@ -168,9 +167,7 @@ const ManageBookings = (props) => {
 
     return (
         <>
-            <BlockUI blocked={blocked} className='mt-8' template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '4rem' }}></i>}>
-                {renderManualChoiche()}
-            </BlockUI >
+            {renderManualChoiche()}
         </>
     );
 }

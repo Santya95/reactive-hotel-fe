@@ -180,7 +180,7 @@ const BookingPage = (props) => {
 
 
     try {
-      setBlocked(true)
+      props.blockUI(true)
       const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/rooms_per_type_and_suggestion`, {
         method: "POST",
         headers: {
@@ -203,16 +203,16 @@ const BookingPage = (props) => {
         // Se se la lunghezza di selected rooms è maggiore delle stanze selezionate, l'utente ha richiesto più stanze di quanto il numero di ospiti possano occupare
         if (data.selected_combination.length > rooms) {
           setRooms(data.selected_combination.length)
-          toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 3000 });
+          toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 6000 });
         }
-        setBlocked(false)
+        props.blockUI(false)
       } else {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
-        setBlocked(false)
+        props.blockUI(false)
       }
     } catch (error) {
       toast.current.show({ severity: "error", summary: "Ricerca", detail: "Errore durante la ricerca", life: 3000 });
-      setBlocked(false)
+      props.blockUI(false)
     }
   }
 
@@ -233,7 +233,7 @@ const BookingPage = (props) => {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
         props.renderComponent('login')
       } else {
-
+        props.blockUI(true)
         const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
           method: "POST",
           headers: {
@@ -251,19 +251,20 @@ const BookingPage = (props) => {
 
         const data = await response.json();
         if (response.ok) {
-          console.log(data)
           toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
           setBookingSuccess(true)
           setBookingDetails(data.booking_details)
           setUserInfo({ ...userInfo, bookings: data.user_bookings })
           sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
+          props.blockUI(false)
         } else {
           toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
+          props.blockUI(false)
         }
       }
     } catch (error) {
-      console.log(error)
       toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+      props.blockUI(false)
     }
 
   };
@@ -281,7 +282,7 @@ const BookingPage = (props) => {
           toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
           props.renderComponent('login')
         } else {
-
+          props.blockUI(true)
           const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
             method: "POST",
             headers: {
@@ -305,13 +306,15 @@ const BookingPage = (props) => {
             console.log(data.user_bookings)
             setUserInfo({ ...userInfo, bookings: data.user_bookings })
             sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
+            props.blockUI(false)
           } else {
             toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
+            props.blockUI(false)
           }
         }
       } catch (error) {
-        console.log(error)
         toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+        props.blockUI(false)
       }
 
   };
@@ -581,14 +584,12 @@ const BookingPage = (props) => {
 
   return (
     <>
-      <BlockUI blocked={blocked} className='mt-8' template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '4rem' }}></i>}>
-        {renderBookingPage()}
-        <div className="flex align-items-center justify-content-center fadein animation-duration-500 overflow-hidden" >
-          {renderRoomsSuggestions()}
-          {renderManualChoiche()}
-          {renderBookingSuccess()}
-        </div>
-      </BlockUI >
+      {renderBookingPage()}
+      <div className="flex align-items-center justify-content-center fadein animation-duration-500 overflow-hidden" >
+        {renderRoomsSuggestions()}
+        {renderManualChoiche()}
+        {renderBookingSuccess()}
+      </div>
     </>
   );
 }

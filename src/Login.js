@@ -47,7 +47,7 @@ const Login = (props) => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            setBlocked(true);
+            props.blockUI(true)
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/login`, {
                 method: "POST",
                 headers: {
@@ -65,16 +65,16 @@ const Login = (props) => {
                 setUserInfo({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname, bookings: data.bookings });
                 sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname, bookings: data.bookings }));
                 toast.current.show({ severity: "success", summary: "Login", detail: "Login avvenuto con successo", life: 3000 });
-                setBlocked(false);
+                props.blockUI(false)
                 props.renderComponent('bookingPage')
             } else {
                 toast.current.show({ severity: "error", summary: "Login", detail: data.error, life: 3000 });
-                setBlocked(false);
+                props.blockUI(false)
             }
         } catch (error) {
             console.error("Login error:", error);
             toast.current.show({ severity: "error", summary: "Login", detail: "Errore durante il login", life: 3000 });
-            setBlocked(false);
+            props.blockUI(false)
         }
     };
 
@@ -86,7 +86,7 @@ const Login = (props) => {
             return;
         }
         try {
-            setBlocked(true);
+            props.blockUI(true)
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/register`, {
                 method: "POST",
                 headers: {
@@ -107,16 +107,16 @@ const Login = (props) => {
                 setUserInfo({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname });
                 sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ token: data.access_token, isLogged: true, userInitials: userInitials, firstName: data.firstName, surname: data.surname }));
                 toast.current.show({ severity: "success", summary: "Registrazione", detail: "Registrazione avvenuta con successo, sei stato loggato", life: 3000 });
-                setBlocked(false);
+                props.blockUI(false)
                 props.renderComponent('bookingPage')
             } else {
                 toast.current.show({ severity: "error", summary: "Registrazione", detail: data.error, life: 3000 });
-                setBlocked(false);
+                props.blockUI(false)
             }
         } catch (error) {
             console.error("Registration error:", error);
             toast.current.show({ severity: "error", summary: "Registrazione", detail: "Errore durante la registrazione", life: 3000 });
-            setBlocked(false);
+            props.blockUI(false)
         }
     };
 

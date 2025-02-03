@@ -200,6 +200,11 @@ const BookingPage = (props) => {
         setRoomsSuggestions(data)
         setGroupedByType(data.room_type_counts)
         setGropuedByTypeCombination(groupByRoomType(data.selected_combination))
+        // Se se la lunghezza di selected rooms è maggiore delle stanze selezionate, l'utente ha richiesto più stanze di quanto il numero di ospiti possano occupare
+        if (data.selected_combination.length > rooms) {
+          setRooms(data.selected_combination.length)
+          toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 3000 });
+        }
         setBlocked(false)
       } else {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
@@ -446,7 +451,7 @@ const BookingPage = (props) => {
 
   const footer = () => {
     return (
-      <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 w-full surface-200" style={{ height: '2.5rem' }}>
+      <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200" style={{ height: '2.5rem' }}>
         <div className="flex flex-row justify-content-end m-2">
           <div className='flex align-items-center justify-content-center'>Totale Soggiorno:</div>
           <div className='flex align-items-center justify-content-center ml-1'>{!manualChoiche ? (formatPrice(roomsSuggestion.total_cost_selected_combination)) : formatPrice(totalPrice)}</div>
@@ -489,7 +494,7 @@ const BookingPage = (props) => {
 
   const numberRooms = (room) => {
     return <div className='flex flex-row align-items-center justify-content-end' style={{ overflow: 'hidden' }}>
-      <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length <= rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
+      <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length < rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
     </div>
   }
 
@@ -498,7 +503,7 @@ const BookingPage = (props) => {
       return (
         <div >
           <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
-            <DataTable stripedRows scrollable scrollHeight='70vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
+            <DataTable stripedRows scrollable scrollHeight='55vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
               <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
               <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
               <Column align={'right'} header="Numero Stanze" body={numberRooms}></Column>

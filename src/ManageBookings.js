@@ -93,7 +93,7 @@ const ManageBookings = (props) => {
 
     const header = () => {
         return (
-            <div  >
+            <div className='surface-200 -m-3 p-3'>
                 <div className="flex flex-row align-items-center flex-wrap text-xl md:text-xl">
                     < Button className='justify-content-center w-3rem h-3rem ' severity='secondary' outlined icon="pi pi-undo" onClick={() => props.renderComponent('bookingPage')}></Button>
                 </div >
@@ -107,9 +107,9 @@ const ManageBookings = (props) => {
 
     const footer = () => {
         return (
-            <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 w-full surface-200" style={{ height: '2.5rem' }}>
+            <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200" style={{ height: '2.5rem' }}>
                 <div className="flex flex-row justify-content-end m-2">
-                    <div className='flex align-items-center justify-content-center'>Totale Numero Prenotazioni:</div>
+                    <div className='flex align-items-center justify-content-center'>Numero Prenotazioni:</div>
                     <div className='flex align-items-center justify-content-center ml-1'>{userInfo.bookings.length}</div>
                 </div>
             </div>

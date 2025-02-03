@@ -34,7 +34,7 @@ const MainArea = () => {
     );
 
     const renderMainContent = () => (
-        <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500" style={{ backgroundImage: 'url(/3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500 h-screen" style={{ backgroundImage: 'url(/3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {renderTopBar && <TopBar renderComponent={renderComponentCallback} componentOnScreen={renderComponent} />}
             {ComponentOnScreen && <ComponentOnScreen renderComponent={renderComponentCallback} />}
         </div>

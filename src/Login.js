@@ -150,25 +150,25 @@ const Login = (props) => {
                             <form className="md:w-30rem" onSubmit={handleRegister}>
                                 <div className="justify-content-center m-4">
                                     <FloatLabel>
-                                        <InputText id="name" className="w-full" required autoFocus maxLength={50} value={firstNameReg} onChange={(e) => setFirstNameReg(e.target.value)} />
+                                        <InputText id="name" className="w-full" required autoFocus maxLength={60} value={firstNameReg} onChange={(e) => setFirstNameReg(e.target.value)} />
                                         <label htmlFor="name">Nome</label>
                                     </FloatLabel>
                                 </div>
                                 <div className="justify-content-center m-4">
                                     <FloatLabel>
-                                        <InputText id="surname" className="w-full" required maxLength={50} value={surnameReg} onChange={(e) => setSurnameReg(e.target.value)} />
+                                        <InputText id="surname" className="w-full" required maxLength={60} value={surnameReg} onChange={(e) => setSurnameReg(e.target.value)} />
                                         <label htmlFor="surname">Cognome</label>
                                     </FloatLabel>
                                 </div>
                                 <div className="justify-content-center m-4">
                                     <FloatLabel>
-                                        <InputText id="email" className="w-full" required maxLength={50} value={emailReg} onChange={(e) => setEmailReg(e.target.value)} />
+                                        <InputText id="email" className="w-full" required maxLength={80} value={emailReg} onChange={(e) => setEmailReg(e.target.value)} />
                                         <label htmlFor="email">Email</label>
                                     </FloatLabel>
                                 </div>
                                 <div className="justify-content-center m-4">
                                     <FloatLabel>
-                                        <InputText id="username" className="w-full" required maxLength={50} value={usernameReg} onChange={(e) => setUsernameReg(e.target.value)} />
+                                        <InputText id="username" className="w-full" required maxLength={60} value={usernameReg} onChange={(e) => setUsernameReg(e.target.value)} />
                                         <label htmlFor="username">Username</label>
                                     </FloatLabel>
                                 </div>

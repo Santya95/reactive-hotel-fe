@@ -369,7 +369,7 @@ const BookingPage = (props) => {
       return (
         <div className="flex flex-column align-items-center justify-content-center relative fadein animation-duration-500">
           <h1 className="flex align-items-center justify-content-center mb-3 md:mt-0 -mt-3" style={{ fontSize: '2.5rem', color: 'white' }}>Prenota il tuo soggiorno!</h1>
-          <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-5 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
+          <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-4 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
             <form onSubmit={handleSearch} className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center">
               <div className="flex align-items-center justify-content-center">
                 <Calendar minDate={new Date()} appendTo={'self'} dateFormat='dd/mm/yy' locale='it' required value={startDate} onChange={(e) => setStartDate(e.value)} placeholder="Data Check-in" showIcon showButtonBar />

@@ -40,7 +40,7 @@ const MainArea = () => {
     );
 
     const renderMainContent = () => (
-        <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500" style={{ backgroundImage: 'url(/3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500 h-screen" style={{ backgroundImage: 'url(/3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {renderTopBar && <TopBar renderComponent={renderComponentCallback} componentOnScreen={renderComponent} />}
             <BlockUI blocked={blocked} className='mt-8' fullScreen template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '4rem', color: 'var(--primary-color)' }}></i>}>
                 {ComponentOnScreen && <ComponentOnScreen renderComponent={renderComponentCallback} blockUi={blockUiCallaback} />}

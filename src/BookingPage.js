@@ -9,7 +9,7 @@ import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { AuthContext, ToastContext } from "./App";
-import { formatDate, formatDateToDisplay, capitalize } from './commons/AppUtils';
+import { formatDate, formatDateToDisplay, formatPrice } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -69,10 +69,6 @@ const BookingPage = (props) => {
     return futureDate
   }
 
-  // Funzione che formatta il prezzo in valuta
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(price);
-  };
 
   // Funzione che restituisce il valore dell'inputNumber in base al tipo di stanza
   const valueForType = (type) => {
@@ -121,7 +117,7 @@ const BookingPage = (props) => {
     return newTotalPrice <= 0 ? 0 : newTotalPrice;
   }
 
-  // Funzione che restituisce un array di tipi di stanza in base al numero di stanze selezionate
+  // Funzione che restituisce un array di tipi di stanza in base al numero di Stanze selezionate
   const bookingManualRoomsArray = () => {
     let array = []
     for (let i = 0; i < standardInput; i++) {
@@ -136,13 +132,13 @@ const BookingPage = (props) => {
     return array
   }
 
-  // Restituisce il numero massimo di stanze per un determinato tipo.
+  // Restituisce il numero massimo di Stanze per un determinato tipo.
   const maxRooms = (type) => {
     const element = groupedByType.find(element => element.room_type === type);
     return element ? element.count : 0;
   }
 
-  // Crea un array di opzioni per il numero di stanze selezionabili in base al tipo di stanza. ritorna il minimo tra le stanze disponibili per tipologia e il numero di stanze richieste.
+  // Crea un array di opzioni per il numero di Stanze selezionabili in base al tipo di stanza. ritorna il minimo tra le Stanze disponibili per tipologia e il numero di Stanze richieste.
   const createRoomOptions = (type) => {
     let maxRoomAvailable = maxRooms(type);
 
@@ -160,7 +156,7 @@ const BookingPage = (props) => {
     const check_in = formatDate(startDate);
     const check_out = formatDate(endDate);
 
-    // Funzione che raggruppa le stanze per tipo
+    // Funzione che raggruppa le Stanze per tipo
     const groupByRoomType = (rooms) => {
       const groupedRooms = {};
       rooms.forEach(room => {
@@ -254,7 +250,8 @@ const BookingPage = (props) => {
           toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
           setBookingSuccess(true)
           setBookingDetails(data.booking_details)
-          setUserInfo({ ...userInfo, bookings: [...userInfo.bookings] })
+          setUserInfo({ ...userInfo, bookings: data.user_bookings })
+          sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
         } else {
           toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
         }
@@ -269,9 +266,9 @@ const BookingPage = (props) => {
   const handleBookingManual = async () => {
 
     if (standardInput + superiorInput + suiteInput > rooms) {
-      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di stanze selezionate supera il numero di stanze richieste", life: 3000 });
+      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate supera il numero di Stanze richieste", life: 3000 });
     } else if (standardInput + superiorInput + suiteInput < rooms) {
-      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di stanze selezionate è inferiore al numero di stanze richieste", life: 3000 });
+      toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate è inferiore al numero di Stanze richieste", life: 3000 });
     }
     else
       try {
@@ -300,7 +297,9 @@ const BookingPage = (props) => {
             toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
             setBookingSuccess(true)
             setBookingDetails(data.booking_details)
-            setUserInfo({ ...userInfo, bookings: [...userInfo.bookings] })
+            console.log(data.user_bookings)
+            setUserInfo({ ...userInfo, bookings: data.user_bookings })
+            sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
           } else {
             toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
           }
@@ -398,7 +397,7 @@ const BookingPage = (props) => {
             <div className="flex align-items-center gap-3">
               <span className="flex align-items-center gap-2">
                 <i className="pi pi-tag"></i>
-                <span className="font-semibold text-l">{capitalize(type.room_type)}</span>
+                <span className="font-semibold text-l capitalize">{type.room_type}</span>
               </span>
             </div>
           </div>
@@ -438,7 +437,7 @@ const BookingPage = (props) => {
 
           <div className="flex flex-column justify-content-end text-center">
             <div className='flex align-items-center justify-content-end'>Ospiti: {guests}</div>
-            <div className='flex align-items-center justify-content-end'>Camere: {rooms}</div>
+            <div className='flex align-items-center justify-content-end'>Stanze: {rooms}</div>
           </div>
         </div >
       </div >
@@ -479,7 +478,7 @@ const BookingPage = (props) => {
 
   const roomDetails = (room) => {
     return <div className='flex flex-column align-items-center justify-content-center -mr-3 md:ml-0 -ml-2'>
-      <div className='text-xl font-bold'>{capitalize(room.room_type)}</div>
+      <div className='text-xl font-bold capitalize'>{room.room_type}</div>
       <div className="text-sm -mt-1">Max {room.capacity} Ospiti</div>
       <div className='flex flex-column align-items-center justify-content-center m-1'>
         <div className="font-semibold mb-1">{formatPrice(room.price)}</div>
@@ -499,7 +498,7 @@ const BookingPage = (props) => {
       return (
         <div >
           <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
-            <DataTable value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
+            <DataTable stripedRows scrollable scrollHeight='70vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
               <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
               <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
               <Column align={'right'} header="Numero Stanze" body={numberRooms}></Column>
@@ -520,13 +519,13 @@ const BookingPage = (props) => {
 
   const renderBookingSuccess = () => {
     if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && bookingSuccess) {
-      // La funzione reduce viene utilizzata per contare il numero di stanze prenotate per ciascun tipo.
+      // La funzione reduce viene utilizzata per contare il numero di Stanze prenotate per ciascun tipo.
       const roomCounts = bookingDetails.rooms.reduce((acc, room) => {
         // I risultati vengono trasformati in un array di oggetti con il tipo di stanza e il conteggio corrispondente.
         acc[room.room_type] = (acc[room.room_type] || 0) + 1;
         return acc;
       }, {});
-      // Questo array può essere utilizzato per visualizzare i dettagli delle stanze prenotate in modo chiaro e strutturato.
+      // Questo array può essere utilizzato per visualizzare i dettagli delle Stanze prenotate in modo chiaro e strutturato.
       const roomData = Object.keys(roomCounts).map(type => ({
         type,
         count: roomCounts[type]
@@ -534,16 +533,16 @@ const BookingPage = (props) => {
 
       const headerSuccess = (
         <div>
-          <div className="flex flex-column align-items-center justify-content-center">
+          <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
             <h1 className="mb-3 line-height-1" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
             <div className="flex flex-wrap justify-content-evenly align-items-center mb-3">
-              <div className='flex border-1 surface-border flex-column border-round shadow-2 p-1 m-1 w-7rem '>
-                <div className="flex mb-1 md:mb-0 mr-2">Check-in: {bookingDetails.check_in}</div>
-                <div className="flex mb-1 md:mb-0 mr-2">Check-out: {bookingDetails.check_out}</div>
+              <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-7rem md:w-auto md:h-4rem md:mt-1'>
+                <div className="flex mb-1 mr-1 md:mr-0">Check-in: {bookingDetails.check_in}</div>
+                <div className="flex mb-1 mr-2">Check-out: {bookingDetails.check_out}</div>
               </div>
-              <div className='flex border-1 surface-border flex-column border-round shadow-2 p-1 m-1 py-4'>
+              <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 py-4 md:py-2'>
                 <div className="flex mb-1 md:mb-0 mr-2">Ospiti: {bookingDetails.guests}</div>
-                <div className="flex mb-1 md:mb-0">Camere: {bookingDetails.rooms.length}</div>
+                <div className="flex mb-1 md:mb-0">Stanze: {bookingDetails.rooms.length}</div>
               </div>
             </div>
           </div>
@@ -551,7 +550,7 @@ const BookingPage = (props) => {
       );
 
       const footerSuccess = (
-        <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 w-full surface-200" style={{ height: '2.5rem' }}>
+        <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200 mr-0 md:mr-6" style={{ height: '2.5rem' }}>
           <div className="flex flex-row justify-content-end m-2">
             <div className='flex align-items-center justify-content-center'>Totale Soggiorno:</div>
             <div className='flex align-items-center justify-content-center ml-1'>{formatPrice(bookingDetails.total_price)}</div>
@@ -563,7 +562,7 @@ const BookingPage = (props) => {
         <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500">
           <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-5 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
             <DataTable value={roomData} header={headerSuccess} footer={footerSuccess} className="p-datatable-sm">
-              <Column align={'left'} className='font-bold' field="type" header="Tipo" />
+              <Column align={'left'} className='font-bold capitalize' field="type" header="Tipo" />
               <Column align={'center'} className='font-bold' field="count" header="Stanze Prenotate" />
               <Column align={'center'} header="Foto" body={(rowData) => <img src={`/${rowData.type}.jpg`} alt={rowData.type} style={{ width: '100px', height: 'auto' }} />} />
             </DataTable>

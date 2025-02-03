@@ -31,6 +31,7 @@ export const revertDataToCalendarFormat = (data) => {
     }
 }
 
-export const capitalize = (str) => {
-    return str.replace(/\b\w/g, char => char.toUpperCase());
+// Funzione che formatta il prezzo in valuta
+export const formatPrice = (price) => {
+    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(price);
 };

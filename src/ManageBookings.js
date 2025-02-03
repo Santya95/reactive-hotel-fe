@@ -9,7 +9,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { BlockUI } from 'primereact/blockui';
 import { AuthContext, ToastContext } from "./App";
-import { formatDate, formatDateToDisplay, capitalize } from './commons/AppUtils';
+import { formatDate, formatDateToDisplay, formatPrice } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -78,8 +78,8 @@ const ManageBookings = (props) => {
             const data = await response.json();
             if (response.ok) {
                 setBlocked(false)
-                setUserInfo({ data })
-                console.log(data)
+                setUserInfo({ ...userInfo, bookings: data })
+                sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data }));
             } else {
                 setBlocked(false)
                 toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
@@ -91,6 +91,73 @@ const ManageBookings = (props) => {
     }
 
 
+    const header = () => {
+        return (
+            <div  >
+                <div className="flex flex-row align-items-center flex-wrap text-xl md:text-xl">
+                    < Button className='justify-content-center w-3rem h-3rem ' severity='secondary' outlined icon="pi pi-undo" onClick={() => props.renderComponent('bookingPage')}></Button>
+                </div >
+                <div className="flex flex-row justify-content-center align-items-center flex-wrap text-l md:mb-0 -mb-6 md:ml-0 ml-6 md:text-xl" style={{ height: '3.5rem' }}>
+                    <div className='align-items-center justify-content-center md:text-3xl text-2xl -mt-8 md:-mt-1 m-3 md:m-0'>Gestione Prenotazioni</div>
+                </div >
+
+            </div >
+        )
+    };
+
+    const footer = () => {
+        return (
+            <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 w-full surface-200" style={{ height: '2.5rem' }}>
+                <div className="flex flex-row justify-content-end m-2">
+                    <div className='flex align-items-center justify-content-center'>Totale Numero Prenotazioni:</div>
+                    <div className='flex align-items-center justify-content-center ml-1'>{userInfo.bookings.length}</div>
+                </div>
+            </div>
+        )
+    };
+
+    const bodyTemplateDates = (rowData) => {
+        return <div className='flex flex-column '>
+            <div className='flex'>Check In: {rowData.check_in}</div>
+            <div className='flex'>Check Out: {rowData.check_out}</div>
+        </div>
+    }
+
+
+    const bodyTemplateGuestRooms = (rowData) => {
+        return <div className='flex flex-column '>
+            <div className='flex'>Ospiti: {rowData.guests}</div>
+            <div className='flex'>Stanze: {rowData.rooms?.length > 0 ? rowData.rooms.length : 0}</div>
+        </div>
+    }
+
+    const bodyTemplatePrice = (rowData) => {
+        return <div>{formatPrice(rowData.total_price)}</div>
+    }
+
+    const renderManualChoiche = () => {
+        if (userInfo.bookings && userInfo.bookings.length > 0 && userInfo.isLogged && userInfo.token) {
+            return (
+                <div >
+                    <div className="flex mt-6 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
+                        <DataTable stripedRows scrollable scrollHeight='60vh' value={userInfo.bookings} header={header} footer={footer} style={{ width: "95vw" }}>
+                            <Column body={bodyTemplateDates} header="Date Soggiorno" ></Column>
+                            <Column header="Numero Stanze" body={bodyTemplateGuestRooms}></Column>
+                            <Column header="Prezzo" body={bodyTemplatePrice} ></Column>
+                        </DataTable>
+                    </div>
+
+                    <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
+                        <Button label="Soluzione Suggerita" icon={"pi pi-lightbulb"} onClick={() => ""} className="p-button-raised p-button-secondary w-10rem" />
+                        <Button label="Prenota" onClick={""} icon={"pi pi-check"} className="p-button-raised p-button-primary w-8rem" />
+                    </div>
+                </div>
+            )
+        }
+        else {
+            props.renderComponent('login')
+        }
+    }
 
     // ###############################################
     // FUNZIONI AUSILIARIE
@@ -102,7 +169,7 @@ const ManageBookings = (props) => {
     return (
         <>
             <BlockUI blocked={blocked} className='mt-8' template={<i className="pi pi-spin pi-spinner" style={{ fontSize: '4rem' }}></i>}>
-
+                {renderManualChoiche()}
             </BlockUI >
         </>
     );

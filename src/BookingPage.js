@@ -546,7 +546,7 @@ const BookingPage = (props) => {
                 <div className="flex mb-1 mr-2">Check-out: {bookingDetails.check_out}</div>
               </div>
               <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 py-4 md:py-2'>
-                <div className="flex mb-1 md:mb-0 mr-2">Ospiti: {bookingDetails.guests}</div>
+                <div className="flex mb-1 md:mb-0 mr-1">Ospiti: {bookingDetails.guests}</div>
                 <div className="flex mb-1 md:mb-0">Stanze: {bookingDetails.rooms.length}</div>
               </div>
             </div>

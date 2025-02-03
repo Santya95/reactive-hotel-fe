@@ -124,9 +124,9 @@ const Login = (props) => {
     // ###############################################
     const renderLogin = () => {
         return (
-            <div className={isRegistering ? "md:mt-0 mt-6 flex align-items-center justify-content-center w-full" : "flex align-items-center justify-content-center w-full"}>
-                <div className="surface-card p-4 border-round justify-content-center fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 1)', borderRadius: '15px' }}>
-                    <div className={isRegistering ? "text-center md:mb-5 mb-1" : "text-center mb-5"}>
+            <div className="flex align-items-center justify-content-center">
+                <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0 surface-0 p-5">
+                    <div className={isRegistering ? "text-center -mt-4 md:mt-0 md:mb-5 mb-1" : "text-center mb-5"}>
                         <img src="/logo512.png" alt="hyper" height={100} />
                         <div className={isRegistering ? "text-900 text-5xl font-medium md:mb-5 mb-1" : "text-900 text-5xl font-medium mb-5"}>Hotel Reactive</div>
                         {isRegistering ? (
@@ -144,7 +144,7 @@ const Login = (props) => {
                     </div>
 
                     {isRegistering ? (
-                        <form className="md:w-30rem" onSubmit={handleRegister}>
+                        <form className="md:w-30rem -mt-2 md:mt-0" onSubmit={handleRegister}>
                             <div className="justify-content-center m-4">
                                 <FloatLabel>
                                     <InputText id="name" className="w-full" required autoFocus maxLength={60} value={firstNameReg} onChange={(e) => setFirstNameReg(e.target.value)} />
@@ -183,7 +183,7 @@ const Login = (props) => {
                                 </FloatLabel>
                             </div>
 
-                            <div className={isRegistering ? "flex align-items-center justify-content-evenly md:mb-6 mb-2" : "flex align-items-center justify-content-evenly mb-6"}>
+                            <div className={isRegistering ? "flex align-items-center justify-content-evenly md:mb-6 mb-1 -mt-2 md:mt-0" : "flex align-items-center justify-content-evenly mb-6"}>
                                 <a className="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Hai dimenticato la password?</a>
                             </div>
                             <Button label="Registrati" icon="pi pi-user" className="w-full" type="submit" />
@@ -212,7 +212,7 @@ const Login = (props) => {
                             <Button label="Accedi" icon="pi pi-user" className="w-full" type="submit" />
                         </form>
                     )}
-                    <Button icon="pi pi-eye-slash" label="Continua come Ospite" className="w-full mt-2" severity="secondary" onClick={() => props.renderComponent('SearchAvailability')} />
+                    {!isRegistering ? <Button icon="pi pi-eye-slash" label="Continua come Ospite" className="w-full mt-2" severity="secondary" onClick={() => props.renderComponent('bookingPage')} /> : <></>}
                 </div>
             </div>
         )

@@ -302,7 +302,6 @@ const BookingPage = (props) => {
             toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
             setBookingSuccess(true)
             setBookingDetails(data.booking_details)
-            console.log(data.user_bookings)
             setUserInfo({ ...userInfo, bookings: data.user_bookings })
             sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
             props.blockUiCallaback(false)
@@ -539,10 +538,10 @@ const BookingPage = (props) => {
       }));
 
       const headerSuccess = (
-        <div>
+        <div className='surface-200 -m-3 p-1'>
           <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
-            <h1 className="mb-3 line-height-1 md:mt-0 -mt-3" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
-            <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-0">
+            <h1 className="mb-3 line-height-1 -mt-1 md:mt-0" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
+            <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
               <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-7rem md:w-auto md:h-4rem md:mt-1'>
                 <div className="flex mb-1 mr-1 md:mr-0">Check-in: {bookingDetails.check_in}</div>
                 <div className="flex mb-1 mr-2">Check-out: {bookingDetails.check_out}</div>
@@ -566,18 +565,19 @@ const BookingPage = (props) => {
       );
 
       return (
-        <div >
-          <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
-            <DataTable stripedRows scrollable scrollHeight='35vh' value={roomData} header={headerSuccess} footer={footerSuccess} style={{ width: "95vw" }} >
+        <div>
+          <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2">
+            <DataTable value={roomData} stripedRows scrollable scrollHeight='35vh' header={headerSuccess} footer={footerSuccess} style={{ width: "95vw" }}>
               <Column align={'left'} className='font-bold capitalize' field="type" header="Tipo" />
               <Column align={'center'} className='font-bold' field="count" header="Stanze Prenotate" />
               <Column align={'right'} header="Foto" body={(rowData) => <img src={`/${rowData.type}.jpg`} alt={rowData.type} style={{ width: '100px', height: 'auto' }} />} />
             </DataTable>
-          </div >
-          <div className="flex flex-row justify-content-center justify-content-evenly gap-3">
+          </div>
+
+          <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
             <Button label="Torna alla Home" icon="pi pi-home" className="p-button-raised p-button-primary mt-3" onClick={resetBookingSuccesful} />
-          </div >
-        </div >
+          </div>
+        </div>
       );
     }
   };

@@ -15,7 +15,6 @@ const Login = (props) => {
     // ###############################################
     // STATI DEL COMPONENTE
     // ###############################################
-    const [blocked, setBlocked] = useState(false);
     const [identifier, setIdentifier] = useState("");
     const [passwordLogin, setPasswordLogin] = useState("");
     const [usernameReg, setUsernameReg] = useState("");

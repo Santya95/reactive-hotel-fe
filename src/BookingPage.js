@@ -20,7 +20,6 @@ const BookingPage = (props) => {
   // ###############################################
   // STATI DEL COMPONENTE
   // ###############################################
-  const [blocked, setBlocked] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [guests, setGuests] = useState(2);

@@ -138,7 +138,7 @@ const ManageBookings = (props) => {
             return (
                 <div >
                     <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:m-0">
-                        <DataTable stripedRows scrollable scrollHeight='60vh' value={userInfo.bookings} header={header} footer={footer} style={{ width: "95vw" }}>
+                        <DataTable stripedRows scrollable scrollHeight='50vh' value={userInfo.bookings} header={header} footer={footer} style={{ width: "95vw" }}>
                             <Column body={bodyTemplateDates} header="Date Soggiorno" ></Column>
                             <Column header="Numero Stanze" body={bodyTemplateGuestRooms}></Column>
                             <Column header="Prezzo" body={bodyTemplatePrice} ></Column>

@@ -541,8 +541,8 @@ const BookingPage = (props) => {
       const headerSuccess = (
         <div>
           <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
-            <h1 className="mb-3 line-height-1" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
-            <div className="flex flex-wrap justify-content-evenly align-items-center mb-3">
+            <h1 className="mb-3 line-height-1 md:mt-0 -mt-3" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
+            <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-0">
               <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-7rem md:w-auto md:h-4rem md:mt-1'>
                 <div className="flex mb-1 mr-1 md:mr-0">Check-in: {bookingDetails.check_in}</div>
                 <div className="flex mb-1 mr-2">Check-out: {bookingDetails.check_out}</div>
@@ -557,7 +557,7 @@ const BookingPage = (props) => {
       );
 
       const footerSuccess = (
-        <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200 mr-0 md:mr-6" style={{ height: '2.5rem' }}>
+        <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200" style={{ height: '2.5rem' }}>
           <div className="flex flex-row justify-content-end m-2">
             <div className='flex align-items-center justify-content-center'>Totale Soggiorno:</div>
             <div className='flex align-items-center justify-content-center ml-1'>{formatPrice(bookingDetails.total_price)}</div>
@@ -566,16 +566,18 @@ const BookingPage = (props) => {
       );
 
       return (
-        <div className="flex flex-column align-items-center justify-content-center h-screen fadein animation-duration-500">
-          <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-5 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
-            <DataTable value={roomData} header={headerSuccess} footer={footerSuccess} className="p-datatable-sm">
+        <div >
+          <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
+            <DataTable stripedRows scrollable scrollHeight='35vh' value={roomData} header={headerSuccess} footer={footerSuccess} style={{ width: "95vw" }} >
               <Column align={'left'} className='font-bold capitalize' field="type" header="Tipo" />
               <Column align={'center'} className='font-bold' field="count" header="Stanze Prenotate" />
-              <Column align={'center'} header="Foto" body={(rowData) => <img src={`/${rowData.type}.jpg`} alt={rowData.type} style={{ width: '100px', height: 'auto' }} />} />
+              <Column align={'right'} header="Foto" body={(rowData) => <img src={`/${rowData.type}.jpg`} alt={rowData.type} style={{ width: '100px', height: 'auto' }} />} />
             </DataTable>
+          </div >
+          <div className="flex flex-row justify-content-center justify-content-evenly gap-3">
             <Button label="Torna alla Home" icon="pi pi-home" className="p-button-raised p-button-primary mt-3" onClick={resetBookingSuccesful} />
-          </div>
-        </div>
+          </div >
+        </div >
       );
     }
   };

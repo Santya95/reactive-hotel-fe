@@ -26,6 +26,7 @@ const TopBar = (props) => {
     const logOut = () => {
         setUserInfo({ token: "", isLogged: false, userInitials: "", firstName: "", surname: "", bookings: [] })
         sessionStorage.removeItem("reactiveHoteluserInfo")
+        sessionStorage.removeItem("reactiveHotelLastSearch")
         props.renderComponent('landingPage')
     }
 

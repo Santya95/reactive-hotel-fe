@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { addLocale } from 'primereact/api';
-import { classNames } from 'primereact/utils';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
@@ -15,7 +14,6 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
-import { InputNumber } from 'primereact/inputnumber';
 
 
 const ManageBookings = (props) => {

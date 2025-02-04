@@ -401,41 +401,6 @@ const BookingPage = (props) => {
       )
   }
 
-  const itemTemplate = (type, index) => {
-    return (
-      <div key={type.room_type} className={classNames('flex flex-row xl:flex-row xl:align-items-start gap-4', { 'border-top-1 surface-border': index !== 0 })} style={{ padding: '0.5rem' }} >
-        <img className="w-12rem md:w-14rem shadow-2 block xl:block mx-auto border-round" src={getPhoto(type.room_type)} alt={type.room_type} />
-        <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
-          <div className="flex flex-column align-items-center sm:align-items-start gap-3 md:ml-0 -ml-3">
-            <div className="text-xl font-bold text-900">{`${type.rooms.length} Stanz${type.rooms.length > 1 ? 'e' : 'a'} `}</div>
-            <div className="flex align-items-center gap-3">
-              <span className="flex align-items-center gap-2">
-                <i className="pi pi-tag"></i>
-                <span className="font-semibold text-l capitalize">{type.room_type}</span>
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-column align-items-center sm:align-items-end">
-            <span className="text-2xl font-semibold">{formatPrice(type.rooms[0].price)}</span>
-            <span className="text-sm -mt-2">per notte a stanza</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const listTemplate = (items) => {
-    if (!items || items.length === 0) return null;
-
-    let list = items.map((type, index) => {
-      return itemTemplate(type, index);
-    });
-
-    return <div>{list}</div>;
-  };
-
-
-
   const header = () => {
     const check_in = formatDateToDisplay(startDate);
     const check_out = formatDateToDisplay(endDate);
@@ -469,8 +434,41 @@ const BookingPage = (props) => {
     )
   };
 
-
   const renderRoomsSuggestions = () => {
+
+    const itemTemplate = (type, index) => {
+      return (
+        <div key={type.room_type} className={classNames('flex flex-row xl:flex-row xl:align-items-start gap-4', { 'border-top-1 surface-border': index !== 0 })} style={{ padding: '0.5rem' }} >
+          <img className="w-12rem md:w-14rem shadow-2 block xl:block mx-auto border-round" src={getPhoto(type.room_type)} alt={type.room_type} />
+          <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+            <div className="flex flex-column align-items-center sm:align-items-start gap-3 md:ml-0 -ml-3">
+              <div className="text-xl font-bold text-900">{`${type.rooms.length} Stanz${type.rooms.length > 1 ? 'e' : 'a'} `}</div>
+              <div className="flex align-items-center gap-3">
+                <span className="flex align-items-center gap-2">
+                  <i className="pi pi-tag"></i>
+                  <span className="font-semibold text-l capitalize">{type.room_type}</span>
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-column align-items-center sm:align-items-end">
+              <span className="text-2xl font-semibold">{formatPrice(type.rooms[0].price)}</span>
+              <span className="text-sm -mt-2">per notte a stanza</span>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const listTemplate = (items) => {
+      if (!items || items.length === 0) return null;
+
+      let list = items.map((type, index) => {
+        return itemTemplate(type, index);
+      });
+
+      return <div>{list}</div>;
+    };
+
     if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && !manualChoiche && !bookingSuccess) {
       return (
         <div>
@@ -486,28 +484,29 @@ const BookingPage = (props) => {
     }
   }
 
-  const imageBodyTemplate = (room) => {
-    return <img src={`/${room.room_type}.jpg`} alt={room.room_type} className="w-8rem shadow-2 border-round -mr-3 md:mr-0" />;
-  };
-
-  const roomDetails = (room) => {
-    return <div className='flex flex-column align-items-center justify-content-center -mr-3 md:ml-0 -ml-2'>
-      <div className='text-xl font-bold capitalize'>{room.room_type}</div>
-      <div className="text-sm -mt-1">Max {room.capacity} Ospiti</div>
-      <div className='flex flex-column align-items-center justify-content-center m-1'>
-        <div className="font-semibold mb-1">{formatPrice(room.price)}</div>
-        <span className="text-sm -mt-2 line-height-1">per notte a camera</span>
-      </div>
-    </div>
-  };
-
-  const numberRooms = (room) => {
-    return <div className='flex flex-row align-items-center justify-content-end' style={{ overflow: 'hidden' }}>
-      <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length < rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
-    </div>
-  }
-
   const renderManualChoiche = () => {
+
+    const imageBodyTemplate = (room) => {
+      return <img src={`/${room.room_type}.jpg`} alt={room.room_type} className="w-8rem shadow-2 border-round -mr-3 md:mr-0" />;
+    };
+
+    const roomDetails = (room) => {
+      return <div className='flex flex-column align-items-center justify-content-center -mr-3 md:ml-0 -ml-2'>
+        <div className='text-xl font-bold capitalize'>{room.room_type}</div>
+        <div className="text-sm -mt-1">Max {room.capacity} Ospiti</div>
+        <div className='flex flex-column align-items-center justify-content-center m-1'>
+          <div className="font-semibold mb-1">{formatPrice(room.price)}</div>
+          <span className="text-sm -mt-2 line-height-1">per notte a camera</span>
+        </div>
+      </div>
+    };
+
+    const numberRooms = (room) => {
+      return <div className='flex flex-row align-items-center justify-content-end' style={{ overflow: 'hidden' }}>
+        <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length < rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
+      </div>
+    }
+
     if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && manualChoiche && !bookingSuccess) {
       return (
         <div >
@@ -527,9 +526,6 @@ const BookingPage = (props) => {
       )
     }
   }
-
-
-
 
   const renderBookingSuccess = () => {
     if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && bookingSuccess) {

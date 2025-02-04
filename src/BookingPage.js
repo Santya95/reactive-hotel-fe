@@ -8,7 +8,7 @@ import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { AuthContext, ToastContext } from "./App";
-import { formatDate, formatDateToDisplay, formatPrice } from './commons/AppUtils';
+import { formatDate, formatDateToDisplay, formatPrice, revertDataToCalendarFormat } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -20,10 +20,10 @@ const BookingPage = (props) => {
   // ###############################################
   // STATI DEL COMPONENTE
   // ###############################################
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [guests, setGuests] = useState(2);
-  const [rooms, setRooms] = useState(1);
+  const [startDate, setStartDate] = useState(sessionStorage.getItem("reactiveHotelLastSearch") ? revertDataToCalendarFormat(JSON.parse(sessionStorage.getItem("reactiveHotelLastSearch")).check_in) : null);
+  const [endDate, setEndDate] = useState(sessionStorage.getItem("reactiveHotelLastSearch") ? revertDataToCalendarFormat(JSON.parse(sessionStorage.getItem("reactiveHotelLastSearch")).check_out) : null);
+  const [guests, setGuests] = useState(sessionStorage.getItem("reactiveHotelLastSearch") ? JSON.parse(sessionStorage.getItem("reactiveHotelLastSearch")).guests : 2);
+  const [rooms, setRooms] = useState(sessionStorage.getItem("reactiveHotelLastSearch") ? JSON.parse(sessionStorage.getItem("reactiveHotelLastSearch")).room_types.length : 1);
   const [roomsSuggestion, setRoomsSuggestions] = useState({})
   const [gropuedByTypeCombination, setGropuedByTypeCombination] = useState([])
   const [groupedByType, setGroupedByType] = useState([])
@@ -150,7 +150,7 @@ const BookingPage = (props) => {
   // ###############################################
   const handleSearch = async (e) => {
     e.preventDefault();
-
+    console.log(rooms)
     const check_in = formatDate(startDate);
     const check_out = formatDate(endDate);
 
@@ -227,9 +227,18 @@ const BookingPage = (props) => {
     }
 
     try {
+
+      let lastSearch = {
+        check_in: formatDate(startDate),
+        check_out: formatDate(endDate),
+        guests: guests,
+        room_types: generateRoomTypesArrayForSuggested(gropuedByTypeCombination)
+      }
+
       if (!userInfo.token && !userInfo.isLogged) {
         toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
         props.renderComponent('login')
+        sessionStorage.setItem("reactiveHotelLastSearch", JSON.stringify(lastSearch))
       } else {
         props.blockUiCallaback(true)
         const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
@@ -434,7 +443,7 @@ const BookingPage = (props) => {
       <div className="surface-200 -m-3 p-1" >
         <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-2xl -mt-1'>{manualChoiche ? 'Personalizza Scelta' : 'Soluzione Suggerita'}</div>
         <div className="flex flex-row text-l align-items-center justify-content-between flex-wrap w-full text-l md:text-xl" style={{ height: '3.5rem' }}>
-          < Button className='p-button-secondary p-button-outlined md:ml-3 ml-1' icon="pi pi-undo" onClick={() => resetBooking()}></Button >
+          < Button className='-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' icon=" pi pi-undo" onClick={() => resetBooking()}></Button >
           <div className="flex flex-column justify-content-end text-center">
             <div className='flex align-items-center justify-content-end'>Check-in: {check_in}</div>
             <div className='flex align-items-center justify-content-end'>Check-out: {check_out}</div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BlockUI } from 'primereact/blockui';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -15,6 +15,10 @@ const MainArea = () => {
     const [renderComponent, setRenderComponent] = useState('landingPage');
     const [blocked, setBlocked] = useState(false);
     const [renderTopBar] = useState(true);
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [renderComponent])
 
     // Callbacks
     const renderComponentCallback = (component) => {

@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { FloatLabel } from 'primereact/floatlabel';
 import { AuthContext, ToastContext } from "./App";
 import { formatDate, formatDateToDisplay, formatPrice, revertDataToCalendarFormat } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -66,7 +67,6 @@ const BookingPage = (props) => {
 
     return futureDate
   }
-
 
   // Funzione che restituisce il valore dell'inputNumber in base al tipo di stanza
   const valueForType = (type) => {
@@ -148,9 +148,14 @@ const BookingPage = (props) => {
   // ###############################################
   // HANDLERS
   // ###############################################
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    console.log(rooms)
+  const handleSearch = async () => {
+
+    if ((!startDate || !endDate)) {
+      toast.current.show({ severity: "error", summary: "Ricerca", detail: "Seleziona un intervallo di di date", life: 3000 });
+      return
+    }
+
+
     const check_in = formatDate(startDate);
     const check_out = formatDate(endDate);
 
@@ -379,13 +384,22 @@ const BookingPage = (props) => {
         <div className="flex flex-column align-items-center justify-content-center relative fadein animation-duration-500">
           <h1 className="flex align-items-center justify-content-center mb-3 md:mt-0 -mt-3" style={{ fontSize: '2.5rem', color: 'white' }}>Prenota il tuo soggiorno!</h1>
           <div className="flex flex-column align-items-center justify-content-center fade-in-200 p-4 m-5 md:p-5 shadow-2 fadein animation-duration-500" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
-            <form onSubmit={handleSearch} className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center">
+            <div className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center">
+
               <div className="flex align-items-center justify-content-center">
-                <Calendar minDate={new Date()} appendTo={'self'} dateFormat='dd/mm/yy' locale='it' required value={startDate} onChange={(e) => setStartDate(e.value)} placeholder="Data Check-in" showIcon showButtonBar />
+                <FloatLabel className='-mb-1'>
+                  <Calendar id='check-in' minDate={new Date()} appendTo={'self'} dateFormat='dd/mm/yy' locale='it' value={startDate} onChange={(e) => setStartDate(e.value)} showIcon showButtonBar />
+                  <label htmlFor="check-in">Data Check-in</label>
+                </FloatLabel>
               </div>
+
               <div className="flex align-items-center justify-content-center">
-                <Calendar minDate={startDate ? datePlusOne(startDate) : new Date()} dateFormat='dd/mm/yy' locale='it' required value={endDate} onChange={(e) => setEndDate(e.value)} placeholder="Data Check-out" showIcon showButtonBar />
+                <FloatLabel className='-mb-1'>
+                  <Calendar id='check-out' minDate={startDate ? datePlusOne(startDate) : datePlusOne(new Date())} dateFormat='dd/mm/yy' locale='it' value={endDate} onChange={(e) => setEndDate(e.value)} showIcon showButtonBar />
+                  <label htmlFor="check-out">Data Check-out</label>
+                </FloatLabel>
               </div>
+
               <div className="flex align-items-center justify-content-center">
                 <Dropdown value={guests} options={guestOptions} onChange={(e) => setGuests(e.value)} required placeholder="Guests" />
               </div>
@@ -393,9 +407,9 @@ const BookingPage = (props) => {
                 <Dropdown value={rooms} options={roomOptions} onChange={(e) => setRooms(e.value)} required placeholder="Rooms" />
               </div>
               <div className="flex align-items-center justify-content-center">
-                <Button type="submit" label="Cerca" icon="pi pi-search" className="p-button-raised p-button-primary" />
+                <Button label="Cerca" icon="pi pi-search" onClick={handleSearch} className="p-button-raised p-button-primary" />
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )
@@ -408,7 +422,7 @@ const BookingPage = (props) => {
       <div className="surface-200 -m-3 p-1" >
         <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-2xl -mt-1'>{manualChoiche ? 'Personalizza Scelta' : 'Soluzione Suggerita'}</div>
         <div className="flex flex-row text-l align-items-center justify-content-between flex-wrap w-full text-l md:text-xl" style={{ height: '3.5rem' }}>
-          < Button className='-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' icon=" pi pi-undo" onClick={() => resetBooking()}></Button >
+          < Button className='w-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' icon=" pi pi-undo" onClick={() => resetBooking()}></Button >
           <div className="flex flex-column justify-content-end text-center">
             <div className='flex align-items-center justify-content-end'>Check-in: {check_in}</div>
             <div className='flex align-items-center justify-content-end'>Check-out: {check_out}</div>

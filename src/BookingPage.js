@@ -7,7 +7,6 @@ import { Button } from 'primereact/button';
 import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { FloatLabel } from 'primereact/floatlabel';
 import { AuthContext, ToastContext } from "./App";
 import { formatDate, formatDateToDisplay, formatPrice, revertDataToCalendarFormat } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -387,17 +386,11 @@ const BookingPage = (props) => {
             <div className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center">
 
               <div className="flex align-items-center justify-content-center">
-                <FloatLabel className='-mb-1'>
-                  <Calendar id='check-in' minDate={new Date()} appendTo={'self'} dateFormat='dd/mm/yy' locale='it' value={startDate} onChange={(e) => setStartDate(e.value)} showIcon showButtonBar />
-                  <label htmlFor="check-in">Data Check-in</label>
-                </FloatLabel>
+                <Calendar id='check-in' minDate={new Date()} appendTo={'self'} dateFormat='dd/mm/yy' locale='it' value={startDate} onChange={(e) => setStartDate(e.value)} placeholder='Data Check-in' showIcon showButtonBar />
               </div>
 
               <div className="flex align-items-center justify-content-center">
-                <FloatLabel className='-mb-1'>
-                  <Calendar id='check-out' minDate={startDate ? datePlusOne(startDate) : datePlusOne(new Date())} dateFormat='dd/mm/yy' locale='it' value={endDate} onChange={(e) => setEndDate(e.value)} showIcon showButtonBar />
-                  <label htmlFor="check-out">Data Check-out</label>
-                </FloatLabel>
+                <Calendar id='check-out' minDate={startDate ? datePlusOne(startDate) : datePlusOne(new Date())} dateFormat='dd/mm/yy' locale='it' value={endDate} onChange={(e) => setEndDate(e.value)} placeholder='Data Check-out' showIcon showButtonBar />
               </div>
 
               <div className="flex align-items-center justify-content-center">

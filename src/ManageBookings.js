@@ -9,7 +9,7 @@ import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { AuthContext, ToastContext } from "./App";
-import { formatDate, formatPrice, revertDataToCalendarFormat, datePlusOne } from './commons/AppUtils';
+import { formatDate, formatPrice, revertDataToCalendarFormat, datePlusOne, formatDateToDisplay } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -66,9 +66,86 @@ const ManageBookings = (props) => {
         getUserBooking()
     }, []);
 
+    // ###############################################
+    // FUNZIONI AUSILIARIE
+    // ###############################################
+    // Funzione che restituisce il valore dell'inputNumber in base al tipo di stanza
+    const valueForType = (type) => {
+        switch (type) {
+            case 'standard':
+                return standardInput;
+
+            case 'superior':
+                return superiorInput;
+
+            case 'suite':
+                return suiteInput;
+            default:
+                return 0;
+        }
+    }
+
+    // Funzione che gestisce il cambio di valore delle dropdown, aggiornando il prezzo totale
+    const onDropdownChange = (room, roomType, e) => {
+        const newValue = e.value;
+        if (roomType === 'standard') {
+            setStandardInput(newValue)
+        }
+        if (roomType === 'superior') {
+            setSuperiorInput(newValue)
+        }
+
+        if (roomType === 'suite') {
+            setSuiteInput(newValue)
+        }
+
+        const newTotalPrice = calculateNewTotalPrice(roomType, room.price, newValue);
+        setTotalPrice(newTotalPrice);
+    }
+
+    // Funzione che calcola il prezzo totale in base al tipo di stanza, al prezzo della stanza e al nuovo valore selezionato
+    const calculateNewTotalPrice = (roomType, roomPrice, newValue) => {
+        const startDateMidnight = new Date(startDate);
+        startDateMidnight.setHours(0, 0, 0, 0);
+        const endDateMidnight = new Date(endDate);
+        endDateMidnight.setHours(0, 0, 0, 0);
+
+        const stayingDays = (endDateMidnight - startDateMidnight) / (1000 * 60 * 60 * 24);
+        let newTotalPrice = totalPrice - (valueForType(roomType) * roomPrice * stayingDays) + (newValue * roomPrice * stayingDays);
+
+        return newTotalPrice <= 0 ? 0 : newTotalPrice;
+    }
+
+    // Funzione che restituisce un array di tipi di stanza in base al numero di Stanze selezionate
+    const bookingManualRoomsArray = () => {
+        let array = []
+        for (let i = 0; i < standardInput; i++) {
+            array.push('standard')
+        }
+        for (let i = 0; i < superiorInput; i++) {
+            array.push('superior')
+        }
+        for (let i = 0; i < suiteInput; i++) {
+            array.push('suite')
+        }
+        return array
+    }
+
+    // Restituisce il numero massimo di Stanze per un determinato tipo.
+    const maxRooms = (type) => {
+        const element = groupedByType.find(element => element.room_type === type);
+        return element ? element.count : 0;
+    }
+
+    // Crea un array di opzioni per il numero di Stanze selezionabili in base al tipo di stanza. ritorna il minimo tra le Stanze disponibili per tipologia e il numero di Stanze richieste.
+    const createRoomOptions = (type) => {
+        let maxRoomAvailable = maxRooms(type);
+
+        let result = Math.min(maxRoomAvailable, rooms);
+        return Array.from({ length: result + 1 }, (_, i) => ({ label: i, value: i }));
+    }
 
     const getUserBooking = async () => {
-
         try {
             props.blockUiCallaback(true)
             const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
@@ -96,12 +173,10 @@ const ManageBookings = (props) => {
     }
 
     const handleSearchModifyBooking = async () => {
-
         if ((!startDate || !endDate)) {
             toast.current.show({ severity: "error", summary: "Ricerca", detail: "Seleziona un intervallo di di date", life: 3000 });
             return
         }
-
 
         const check_in = formatDate(startDate);
         const check_out = formatDate(endDate);
@@ -166,16 +241,70 @@ const ManageBookings = (props) => {
             props.blockUiCallaback(false)
         }
     }
+
+    const handleBookingManual = async () => {
+
+        if (standardInput + superiorInput + suiteInput > rooms) {
+            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate supera il numero di Stanze richieste", life: 3000 });
+        } else if (standardInput + superiorInput + suiteInput < rooms) {
+            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate è inferiore al numero di Stanze richieste", life: 3000 });
+        }
+        else
+            try {
+                if (!userInfo.token && !userInfo.isLogged) {
+                    toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
+                    props.renderComponent('login')
+                } else {
+                    props.blockUiCallaback(true)
+                    const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + userInfo.token,
+                        },
+
+                        body: JSON.stringify({
+                            check_in: formatDate(startDate),
+                            check_out: formatDate(endDate),
+                            guests: guests,
+                            room_types: bookingManualRoomsArray(),
+                            old_booking_id: selectedBooking?.id
+                        })
+                    })
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
+                        setBookingSuccess(true)
+                        setBookingDetails(data.booking_details)
+                        setUserInfo({ ...userInfo, bookings: data.user_bookings })
+                        sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
+                        props.blockUiCallaback(false)
+                    } else {
+                        toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
+                        props.blockUiCallaback(false)
+                    }
+                }
+            } catch (error) {
+                toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+                props.blockUiCallaback(false)
+            }
+
+    };
     // ###############################################
     // RENDERING
     // ###############################################
+    //Renderizza la pagina di gestione delle prenotazioni
     const renderBookingManager = () => {
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0)
 
         const header = () => {
             return (
                 <div className='surface-200 -m-3 p-3'>
                     <div className="flex flex-row align-items-center flex-wrap text-xl md:text-xl">
-                        < Button className='justify-content-center w-3rem h-3rem ' severity='secondary' outlined icon="pi pi-undo" onClick={() => props.renderComponent('bookingPage')}></Button>
+                        < Button className='justify-content-center w-3rem h-3rem ' severity='secondary' tooltip={'Indietro'} outlined icon="pi pi-undo" onClick={() => props.renderComponent('bookingPage')}></Button>
                     </div >
                     <div className="flex flex-row justify-content-center align-items-center flex-wrap text-l md:mb-0 -mb-6 md:ml-0 ml-6 md:text-xl" style={{ height: '3.5rem' }}>
                         <div className='align-items-center justify-content-center md:text-3xl text-2xl -mt-8 md:-mt-1 m-3 md:m-0'>Gestione Prenotazioni</div>
@@ -235,9 +364,13 @@ const ManageBookings = (props) => {
                 setRooms(rowData.rooms.length)
             }
 
-            return <div className='flex md:ml-0 -ml-2 md:mr-0 -mr-3'>
-                < Button className='justify-content-center md:p-button-secondary p-button-help border-2' style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-info" onClick={() => { handleOnClickInfo() }}></Button>
-            </div >
+            if (revertDataToCalendarFormat(rowData.check_in) > today)
+                return <div className='flex md:ml-0 -ml-2 md:mr-0 -mr-3'>
+                    < Button className='justify-content-center md:p-button-secondary p-button-help border-2' style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-info" onClick={() => { handleOnClickInfo() }}></Button>
+                </div >
+            else return <div className='flex md:ml-0 -ml-2 md:mr-0 -mr-3'>
+                < Button className='justify-content-center md:p-button-success p-button-success border-2' tooltip={'Prenotazione Completata'} style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-check"></Button>
+            </div>
         }
 
         const bodyTemplateDeleteModify = (rowData) => {
@@ -261,11 +394,11 @@ const ManageBookings = (props) => {
                     setRooms(rowData.rooms.length)
                 }
             }
-
-            return <div className="flex flex-row flex-wrap justify-content-end hidden md:flex">
-                < Button className='mr-2' style={{ height: "2.5rem", width: "2.5rem" }} severity='warning' outlined icon="pi pi-trash" onClick={() => { handleOnClickDeleteModify('delete') }}></Button>
-                < Button className='' style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-file-edit" onClick={() => { handleOnClickDeleteModify('modify') }}></Button>
-            </div >
+            if (revertDataToCalendarFormat(rowData.check_in) > today)
+                return <div className="flex flex-row flex-wrap justify-content-end hidden md:flex">
+                    < Button className='mr-2' style={{ height: "2.5rem", width: "2.5rem" }} severity='warning' outlined icon="pi pi-trash" onClick={() => { handleOnClickDeleteModify('delete') }}></Button>
+                    < Button className='' style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-file-edit" onClick={() => { handleOnClickDeleteModify('modify') }}></Button>
+                </div >
         }
 
         const bodyTemplatePrice = (rowData) => {
@@ -288,9 +421,144 @@ const ManageBookings = (props) => {
         )
     }
 
+    const headerInfo = (
+        <div className={!isModifiyng ? 'surface-200 -mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-2'}>
+            <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
+                {isModifiyng ? <div className='flex'>Prenotazione in modifica</div> : <div></div>}
+                <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
+                    <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-14rem md:w-14rem md:h-4rem md:mt-1 '>
+                        <div className="flex mb-1 mr-1 md:mr-0">Check-in: {selectedBooking?.check_in}</div>
+                        <div className="flex mb-1 mr-2">Check-out: {selectedBooking?.check_out}</div>
+                    </div>
+                    <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 md:mt-1'>
+                        <div className="flex mb-1 mr-1 md:mr-0">Ospiti: {selectedBooking?.guests}</div>
+                        <div className="flex mb-1 mr-1">Stanze: {selectedBooking?.rooms?.length}</div>
+                    </div>
+                </div>
+            </div>
+        </div >
+    );
 
     // Renderizza dialog con le informazioni della prenotazione
     const renderInfoDialog = () => {
+
+        const renderManualChoiche = () => {
+
+            const imageBodyTemplate = (room) => {
+                return <img src={`/${room.room_type}.jpg`} alt={room.room_type} className="w-8rem shadow-2 border-round -mr-3 md:mr-0" />;
+            };
+
+            const roomDetails = (room) => {
+                return <div className='flex flex-column align-items-center justify-content-center -mr-3 md:ml-0 -ml-2'>
+                    <div className='text-xl font-bold capitalize'>{room.room_type}</div>
+                    <div className="text-sm -mt-1">Max {room.capacity} Ospiti</div>
+                    <div className='flex flex-column align-items-center justify-content-center m-1'>
+                        <div className="font-semibold mb-1">{formatPrice(room.price)}</div>
+                        <span className="text-sm -mt-2 line-height-1">per notte a camera</span>
+                    </div>
+                </div>
+            };
+
+            const numberRooms = (room) => {
+                return <div className='flex flex-row align-items-center justify-content-end' style={{ overflow: 'hidden' }}>
+                    <Dropdown value={valueForType(room.room_type)} options={createRoomOptions(room.room_type)} disabled={roomOptions.length < rooms} onChange={(e) => { onDropdownChange(room, room.room_type, e) }} className='p-1' />
+                </div>
+            }
+
+            const header = () => {
+                const check_in = formatDateToDisplay(startDate);
+                const check_out = formatDateToDisplay(endDate);
+                return (
+                    <div className="surface-200 -mx-3 p-1 -mt-2 -mb-3" >
+                        <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-l'>{'Nuova Prenotazione'}</div>
+                        <div className="flex flex-wrap align-items-center justify-content-between text-l md:text-xl mb-3">
+                            < Button className='w-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' tooltip={'Indietro'} icon=" pi pi-undo" onClick={() => { setRoomsSuggestions({}) }}></Button >
+                            <div className="flex flex-column justify-content-end text-center">
+                                <div className='flex align-items-center justify-content-end'>Check-in: {check_in}</div>
+                                <div className='flex align-items-center justify-content-end'>Check-out: {check_out}</div>
+                            </div>
+
+                            <div className="flex flex-column justify-content-end text-center">
+                                <div className='flex align-items-center justify-content-end'>Ospiti: {guests}</div>
+                                <div className='flex align-items-center justify-content-end'>Stanze: {rooms}</div>
+                            </div>
+                        </div >
+                    </div >
+                )
+            };
+
+            const footer = () => {
+                return (
+                    <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200" style={{ height: '2.5rem' }}>
+                        <div className="flex flex-row justify-content-end m-2">
+                            <div className='flex align-items-center justify-content-center'>Totale Soggiorno:</div>
+                            <div className='flex align-items-center justify-content-center ml-1'>{formatPrice(totalPrice)}</div>
+                        </div>
+                    </div>
+                )
+            };
+
+            if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && !bookingSuccess) {
+                return (
+                    <div className=' fadein animation-duration-200'>
+                        <div className='mx-2 font-semibold'>
+                            {headerInfo}
+                        </div>
+                        <div className="flex">
+                            <DataTable stripedRows scrollable scrollHeight='40vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
+                                <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
+                                <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
+                                <Column align={'right'} header="Numero Stanze" body={numberRooms}></Column>
+                            </DataTable>
+                        </div>
+
+                        <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
+                            <Button label="Prenota" onClick={""} icon={"pi pi-check"} className="p-button-raised p-button-primary w-8rem" />
+                        </div>
+                    </div>
+                )
+            }
+        }
+
+        const renderSearch = () => {
+
+            if (Object.keys(roomsSuggestion).length === 0 && !manualChoiche && !bookingSuccess) {
+                return (
+                    <div className='fadein animation-duration-200 font-semibold'>
+                        <div className='mx-2'>
+                            {headerInfo}
+                        </div>
+                        <div className="flex flex-column align-items-center justify-content-center relative">
+                            <div className="flex flex-column align-items-center justify-content-center w-full fade-in-200 p-4 m-1 md:p-5 shadow-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
+                                <div className='flex flex-row justify-content-center align-items-center -mt-3'>Dettagli della nuova prenotazione</div>
+                                <div className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center mt-3">
+
+                                    <div className="flex align-items-center justify-content-center">
+                                        <Calendar minDate={new Date()} id='check-in' dateFormat='dd/mm/yy' locale='it' value={startDate} onChange={(e) => setStartDate(e.value)} placeholder='Modifica Check-in' showIcon showButtonBar />
+                                    </div>
+
+                                    <div className="flex align-items-center justify-content-center">
+                                        <Calendar id='check-out' minDate={startDate ? datePlusOne(startDate) : datePlusOne(new Date())} dateFormat='dd/mm/yy' locale='it' value={endDate} onChange={(e) => setEndDate(e.value)} placeholder='Modifica Check-out' showIcon showButtonBar />
+                                    </div>
+
+                                    <div className="flex align-items-center justify-content-center">
+                                        <Dropdown value={guests} options={guestOptions} onChange={(e) => setGuests(e.value)} required placeholder="Guests" />
+                                    </div>
+
+                                    <div className="flex align-items-center justify-content-center">
+                                        <Dropdown value={rooms} options={roomOptions} onChange={(e) => setRooms(e.value)} required placeholder="Rooms" />
+                                    </div>
+
+                                    <div className="flex align-items-center justify-content-center">
+                                        <Button label="Cerca Disponibilità" icon="pi pi-search" onClick={handleSearchModifyBooking} className="p-button-raised p-button-primary" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        }
 
         const handleOnHideInfo = () => {
             if (!visibleDialogInfo) {
@@ -301,6 +569,7 @@ const ManageBookings = (props) => {
                 setRooms(0)
                 setStartDate(null)
                 setEndDate(null)
+                setRoomsSuggestions({})
             }
             setVisibleDialogInfo(false)
         }
@@ -317,24 +586,6 @@ const ManageBookings = (props) => {
                 type,
                 count: roomCounts[type]
             }));
-
-            const headerInfo = (
-                <div className={!isModifiyng ? 'surface-200 -m-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-3  fadein animation-duration-200'}>
-                    <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
-                        {isModifiyng ? <div className='flex'>Prenotazione in modifica</div> : <div></div>}
-                        <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
-                            <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-14rem md:w-14rem md:h-4rem md:mt-1 '>
-                                <div className="flex mb-1 mr-1 md:mr-0">Check-in: {selectedBooking.check_in}</div>
-                                <div className="flex mb-1 mr-2">Check-out: {selectedBooking.check_out}</div>
-                            </div>
-                            <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 md:mt-1'>
-                                <div className="flex mb-1 mr-1 md:mr-0">Ospiti: {selectedBooking.guests}</div>
-                                <div className="flex mb-1 mr-1">Stanze: {selectedBooking.rooms.length}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div >
-            );
 
             const footerInfo = (
                 <div className="flex flex-row text-l align-items-center justify-content-end flex-wrap -m-3 surface-200" style={{ height: '2.5rem' }}>
@@ -360,39 +611,10 @@ const ManageBookings = (props) => {
                             </div>
                         </div>
                         :
-                        <div className='fadein animation-duration-200 font-semibold'>
-                            <div className='mx-2'>
-                                {headerInfo}
-                            </div>
-                            <div className="flex flex-column align-items-center justify-content-center relative">
-                                <div className="flex flex-column align-items-center justify-content-center w-full fade-in-200 p-4 m-1 md:p-5 shadow-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '15px' }}>
-                                    <div className='flex flex-row justify-content-center align-items-center -mt-3'>Inserire Date e dettagli della nuova prenotazione</div>
-                                    <div className="flex flex-wrap gap-3 flex-row justify-content-center align-items-center mt-3">
-
-                                        <div className="flex align-items-center justify-content-center">
-                                            <Calendar minDate={new Date()} id='check-in' dateFormat='dd/mm/yy' locale='it' value={startDate} onChange={(e) => setStartDate(e.value)} placeholder='Modifica Check-in' showIcon showButtonBar />
-                                        </div>
-
-                                        <div className="flex align-items-center justify-content-center">
-                                            <Calendar id='check-out' minDate={startDate ? datePlusOne(startDate) : datePlusOne(new Date())} dateFormat='dd/mm/yy' locale='it' value={endDate} onChange={(e) => setEndDate(e.value)} placeholder='Modifica Check-out' showIcon showButtonBar />
-                                        </div>
-
-                                        <div className="flex align-items-center justify-content-center">
-                                            <Dropdown value={guests} options={guestOptions} onChange={(e) => setGuests(e.value)} required placeholder="Guests" />
-                                        </div>
-
-                                        <div className="flex align-items-center justify-content-center">
-                                            <Dropdown value={rooms} options={roomOptions} onChange={(e) => setRooms(e.value)} required placeholder="Rooms" />
-                                        </div>
-
-                                        <div className="flex align-items-center justify-content-center">
-                                            <Button label="Cerca Disponibilità" icon="pi pi-search" onClick={handleSearchModifyBooking} className="p-button-raised p-button-primary" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div>
+                            {renderSearch()}
+                            {renderManualChoiche()}
                         </div>
-
                     }
                 </div>
 
@@ -400,7 +622,7 @@ const ManageBookings = (props) => {
         }
 
         if (selectedBooking)
-            return <Dialog visible={visibleDialogInfo} modal style={{ width: "95vh" }} header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
+            return <Dialog visible={visibleDialogInfo} modal style={{ width: "95vh", marginTop: "-3rem" }} header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
                 {renderBookingInfo()}
             </Dialog>
     }

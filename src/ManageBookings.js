@@ -422,13 +422,13 @@ const ManageBookings = (props) => {
     }
 
     const headerInfo = (
-        <div className={!isModifiyng ? 'surface-200 -mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-3'}>
+        <div className={!isModifiyng ? '-mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-2'}>
             <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
                 {isModifiyng ? <div className='flex'>Prenotazione in modifica</div> : <div></div>}
                 <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
-                    <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-14rem md:w-14rem md:h-4rem md:mt-1 '>
+                    <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-13rem md:w-13rem md:h-4rem md:mt-1 '>
                         <div className="flex mb-1 mr-1 md:mr-0">Check-in: {selectedBooking?.check_in}</div>
-                        <div className="flex mb-1 mr-2">Check-out: {selectedBooking?.check_out}</div>
+                        <div className="flex mb-1 mr-3 md:mr-2">Check-out: {selectedBooking?.check_out}</div>
                     </div>
                     <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 md:mt-1'>
                         <div className="flex mb-1 mr-1 md:mr-0">Ospiti: {selectedBooking?.guests}</div>

@@ -422,7 +422,7 @@ const ManageBookings = (props) => {
     }
 
     const headerInfo = (
-        <div className={!isModifiyng ? 'surface-200 -mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-2'}>
+        <div className={!isModifiyng ? 'surface-200 -mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-3'}>
             <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
                 {isModifiyng ? <div className='flex'>Prenotazione in modifica</div> : <div></div>}
                 <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
@@ -513,7 +513,7 @@ const ManageBookings = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
-                            <Button label="Prenota" onClick={""} icon={"pi pi-check"} className="p-button-raised p-button-primary w-8rem" />
+                            <Button label="Prenota" onClick={""} icon={"pi pi-check"} className="p-button-raised p-button-primary mt-1 -mb-3 md:mb-0 w-12rem" />
                         </div>
                     </div>
                 )

@@ -1,6 +1,6 @@
 # 🏨 Reactive Hotel Frontend - Configurazione Ambiente
 
-Questo progetto utilizza variabili d'ambiente per configurare la base path degli endpoint utilizzati.
+Questo progetto utilizza variabili d'ambiente per configurare la base path degli endpoint.
 
 ## 📌 Come Configurare il File .env
 
@@ -9,7 +9,7 @@ Crea un file .env nella directory principale del progetto e inserisci le seguent
 ## 🔑 Base Path per le chiamate
 
 ```
-REACT_APP_ENDPOINT = https://YouEndopoint.com
+REACT_APP_ENDPOINT = http://localhost:5000 or your remote endpoint
 ```
 
 ## 🚀 Esegui il Progetto

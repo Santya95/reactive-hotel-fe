@@ -622,7 +622,7 @@ const ManageBookings = (props) => {
         }
 
         if (selectedBooking)
-            return <Dialog visible={visibleDialogInfo} modal style={{ width: "95vh", marginTop: "-3rem" }} header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
+            return <Dialog visible={visibleDialogInfo} modal style={{ width: "100vh", marginTop: "-3rem" }} headerClassName='-mb-4' header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
                 {renderBookingInfo()}
             </Dialog>
     }

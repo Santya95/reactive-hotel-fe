@@ -505,7 +505,7 @@ const ManageBookings = (props) => {
                             {headerInfo}
                         </div>
                         <div className="flex">
-                            <DataTable stripedRows scrollable scrollHeight='40vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
+                            <DataTable stripedRows scrollable scrollHeight='33vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
                                 <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
                                 <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
                                 <Column align={'right'} header="Numero Stanze" body={numberRooms}></Column>

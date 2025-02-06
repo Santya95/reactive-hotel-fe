@@ -470,7 +470,7 @@ const ManageBookings = (props) => {
                 const check_out = formatDateToDisplay(endDate);
                 return (
                     <div className="surface-200 -mx-3 p-1 -mt-2 -mb-3" >
-                        <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-l'>{'Nuova Prenotazione'}</div>
+                        <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-m'>{'Nuova Prenotazione'}</div>
                         <div className="flex flex-wrap align-items-center justify-content-between text-l md:text-xl mb-3">
                             < Button className='w-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' tooltip={'Indietro'} icon=" pi pi-undo" onClick={() => { setRoomsSuggestions({}) }}></Button >
                             <div className="flex flex-column justify-content-end text-center">
@@ -622,7 +622,7 @@ const ManageBookings = (props) => {
         }
 
         if (selectedBooking)
-            return <Dialog visible={visibleDialogInfo} modal style={{ width: "100vh", marginTop: "-3rem" }} headerClassName='-mb-4' header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
+            return <Dialog visible={visibleDialogInfo} modal headerClassName='-mb-4 -mt-3 h-content' header={!isModifiyng ? "Informazioni Prenotazione" : "Modifica Prenotazione"} dismissableMask onHide={handleOnHideInfo}>
                 {renderBookingInfo()}
             </Dialog>
     }

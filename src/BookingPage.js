@@ -8,7 +8,7 @@ import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { AuthContext, ToastContext } from "./App";
-import { formatDate, formatDateToDisplay, formatPrice, revertDataToCalendarFormat } from './commons/AppUtils';
+import { formatDate, formatDateToDisplay, formatPrice, revertDataToCalendarFormat, datePlusOne } from './commons/AppUtils';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -59,14 +59,6 @@ const BookingPage = (props) => {
   // ###############################################
   // FUNZIONI AUSILIARIE
   // ###############################################
-  // Funzione che restituisce la data + 1 giorno
-  const datePlusOne = (date) => {
-    let futureDate = new Date(date)
-    futureDate.setDate(futureDate.getDate() + 1)
-
-    return futureDate
-  }
-
   // Funzione che restituisce il valore dell'inputNumber in base al tipo di stanza
   const valueForType = (type) => {
     switch (type) {
@@ -551,15 +543,15 @@ const BookingPage = (props) => {
       const headerSuccess = (
         <div className='surface-200 -m-3 p-1'>
           <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
-            <h1 className="mb-3 line-height-1 -mt-1 md:mt-0" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h1>
+            <h2 className="mb-3 line-height-1 -mt-1 md:mt-0" style={{ fontSize: '2.5rem', color: 'green' }}>Prenotazione Effettuata con Successo!</h2>
             <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
-              <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-7rem md:w-auto md:h-4rem md:mt-1'>
+              <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-14rem md:w-14rem md:h-4rem md:mt-1'>
                 <div className="flex mb-1 mr-1 md:mr-0">Check-in: {bookingDetails.check_in}</div>
                 <div className="flex mb-1 mr-2">Check-out: {bookingDetails.check_out}</div>
               </div>
-              <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 py-4 md:py-2'>
-                <div className="flex mb-1 md:mb-0 mr-1">Ospiti: {bookingDetails.guests}</div>
-                <div className="flex mb-1 md:mb-0">Stanze: {bookingDetails.rooms.length}</div>
+              <div className='flex border-1 surface-border align-items-center flex-column border-round md:h-4rem shadow-2 p-1 m-1 md:mt-1'>
+                <div className="flex mb-1 mr-1 md:mr-0">Ospiti: {bookingDetails.guests}</div>
+                <div className="flex mb-1 mr-1">Stanze: {bookingDetails.rooms.length}</div>
               </div>
             </div>
           </div>

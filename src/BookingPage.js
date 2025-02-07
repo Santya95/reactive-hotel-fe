@@ -145,6 +145,9 @@ const BookingPage = (props) => {
       toast.current.show({ severity: "error", summary: "Ricerca", detail: "Seleziona un intervallo di di date", life: 3000 });
       return
     }
+    if (rooms > guests) {
+      setRooms(guests)
+    }
 
 
     const check_in = formatDate(startDate);
@@ -185,7 +188,7 @@ const BookingPage = (props) => {
           check_in: check_in,
           check_out: check_out,
           guests: guests,
-          rooms: rooms
+          rooms: rooms > guests ? guests : rooms
         }),
       });
 

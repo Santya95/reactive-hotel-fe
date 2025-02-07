@@ -38,7 +38,9 @@ const MainArea = () => {
     };
     const ComponentOnScreen = componentMap[renderComponent];
 
-
+    // ###############################################
+    // RENDERING
+    // ###############################################
     const renderLandingPage = () => (
         <LandingPage renderComponent={renderComponentCallback} />
     );

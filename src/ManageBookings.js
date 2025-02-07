@@ -5,7 +5,6 @@ import { Dialog } from 'primereact/dialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
-import { DataView } from 'primereact/dataview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { AuthContext, ToastContext } from "./App";
@@ -26,13 +25,10 @@ const ManageBookings = (props) => {
     const [rooms, setRooms] = useState(0);
     const [roomsSuggestion, setRoomsSuggestions] = useState({})
     const [groupedByType, setGroupedByType] = useState([])
-    const [manualChoiche, setManualChoiche] = useState(false)
     const [standardInput, setStandardInput] = useState(0)
     const [superiorInput, setSuperiorInput] = useState(0)
     const [suiteInput, setSuiteInput] = useState(0)
     const [totalPrice, setTotalPrice] = useState(0);
-    const [bookingSuccess, setBookingSuccess] = useState(false)
-    const [bookingDetails, setBookingDetails] = useState({})
     const [isModifiyng, setIsModifying] = useState(false)
     const [visibleDialogDelete, setVisibleDialogDelete] = useState(false)
     const [visibleDialogInfo, setVisibleDialogInfo] = useState(false)
@@ -63,6 +59,138 @@ const ManageBookings = (props) => {
     useEffect(() => {
         getUserBooking()
     }, []);
+
+
+
+    // ###############################################
+    // HANDLERS
+    // ###############################################
+    const getUserBooking = async () => {
+        try {
+            props.blockUiCallaback(true)
+            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${userInfo.token}`
+                },
+
+            });
+            const data = await response.json();
+            if (response.ok) {
+                props.blockUiCallaback(false)
+                setUserInfo({ ...userInfo, bookings: data })
+                setUserBookings(data)
+                sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data }));
+            } else {
+                props.blockUiCallaback(false)
+                toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
+            }
+        } catch (error) {
+            props.blockUiCallaback(false)
+            toast.current.show({ severity: 'error', summary: 'Errore', detail: 'Errore durante la ricerca delle prenotazioni utente' });
+        }
+    }
+
+    const handleSearchModifyBooking = async () => {
+        if ((!startDate || !endDate)) {
+            toast.current.show({ severity: "error", summary: "Ricerca", detail: "Seleziona un intervallo di di date", life: 3000 });
+            return
+        }
+        if (rooms > guests) {
+            setRooms(guests)
+        }
+
+        const check_in = formatDate(startDate);
+        const check_out = formatDate(endDate);
+
+
+        try {
+            props.blockUiCallaback(true)
+            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/rooms_per_type_and_suggestion`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    // "Authorization": `Bearer ${userInfo.token}`
+                },
+                body: JSON.stringify({
+                    check_in: check_in,
+                    check_out: check_out,
+                    guests: guests,
+                    rooms: rooms > guests ? guests : rooms,
+                    old_booking_id: selectedBooking?.id
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRoomsSuggestions(data)
+                setGroupedByType(data.room_type_counts)
+                // Se se la lunghezza di selected rooms è maggiore delle stanze selezionate, l'utente ha richiesto più stanze di quanto il numero di ospiti possano occupare
+                if (data.selected_combination.length > rooms) {
+                    setRooms(data.selected_combination.length)
+                    toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 4500 });
+                }
+                props.blockUiCallaback(false)
+            } else {
+                toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
+                props.blockUiCallaback(false)
+            }
+        } catch (error) {
+            toast.current.show({ severity: "error", summary: "Ricerca", detail: "Errore durante la ricerca", life: 3000 });
+            props.blockUiCallaback(false)
+        }
+    }
+
+    const handleBookingManual = async () => {
+
+        if (standardInput + superiorInput + suiteInput > rooms) {
+            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate supera il numero di Stanze richieste", life: 3000 });
+        } else if (standardInput + superiorInput + suiteInput < rooms) {
+            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate è inferiore al numero di Stanze richieste", life: 3000 });
+        }
+        else
+            try {
+                if (!userInfo.token && !userInfo.isLogged) {
+                    toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
+                    props.renderComponent('login')
+                } else {
+                    props.blockUiCallaback(true)
+                    const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/modify_booking`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + userInfo.token,
+                        },
+
+                        body: JSON.stringify({
+                            new_check_in: formatDate(startDate),
+                            new_check_out: formatDate(endDate),
+                            new_guests: guests,
+                            new_room_types: bookingManualRoomsArray(),
+                            booking_id: selectedBooking?.id
+                        })
+                    })
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione modificata con successo", life: 3000 });
+                        setUserInfo({ ...userInfo, bookings: data.user_bookings })
+                        sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
+                        setUserBookings(data.user_bookings)
+                        onCompleteModify()
+                        props.blockUiCallaback(false)
+                    } else {
+                        toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
+                        props.blockUiCallaback(false)
+                    }
+                }
+            } catch (error) {
+                toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
+                props.blockUiCallaback(false)
+            }
+
+    };
 
     // ###############################################
     // FUNZIONI AUSILIARIE
@@ -143,154 +271,6 @@ const ManageBookings = (props) => {
         return Array.from({ length: result + 1 }, (_, i) => ({ label: i, value: i }));
     }
 
-    const getUserBooking = async () => {
-        try {
-            props.blockUiCallaback(true)
-            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/user_bookings`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${userInfo.token}`
-                },
-
-            });
-            const data = await response.json();
-            if (response.ok) {
-                props.blockUiCallaback(false)
-                setUserInfo({ ...userInfo, bookings: data })
-                setUserBookings(data)
-                sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data }));
-            } else {
-                props.blockUiCallaback(false)
-                toast.current.show({ severity: 'error', summary: 'Errore', detail: data.message });
-            }
-        } catch (error) {
-            props.blockUiCallaback(false)
-            toast.current.show({ severity: 'error', summary: 'Errore', detail: 'Errore durante la ricerca delle prenotazioni utente' });
-        }
-    }
-
-    const handleSearchModifyBooking = async () => {
-        if ((!startDate || !endDate)) {
-            toast.current.show({ severity: "error", summary: "Ricerca", detail: "Seleziona un intervallo di di date", life: 3000 });
-            return
-        }
-
-        const check_in = formatDate(startDate);
-        const check_out = formatDate(endDate);
-
-        // Funzione che raggruppa le Stanze per tipo
-        const groupByRoomType = (rooms) => {
-            const groupedRooms = {};
-            rooms.forEach(room => {
-                const roomType = room.room_type;
-                if (!groupedRooms[roomType]) {
-                    groupedRooms[roomType] = {
-                        room_type: roomType,
-                        quantity: 0,
-                        capacity: 0,
-                        price: 0,
-                        rooms: []
-                    };
-                }
-                groupedRooms[roomType].quantity += 1;
-                groupedRooms[roomType].capacity = room.capacity;
-                groupedRooms[roomType].price = room.price;
-                groupedRooms[roomType].rooms.push(room);
-            });
-            return Object.values(groupedRooms);
-        };
-
-
-        try {
-            props.blockUiCallaback(true)
-            const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/rooms_per_type_and_suggestion`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    // "Authorization": `Bearer ${userInfo.token}`
-                },
-                body: JSON.stringify({
-                    check_in: check_in,
-                    check_out: check_out,
-                    guests: guests,
-                    rooms: rooms,
-                    old_booking_id: selectedBooking?.id
-                }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setRoomsSuggestions(data)
-                setGroupedByType(data.room_type_counts)
-                // Se se la lunghezza di selected rooms è maggiore delle stanze selezionate, l'utente ha richiesto più stanze di quanto il numero di ospiti possano occupare
-                if (data.selected_combination.length > rooms) {
-                    setRooms(data.selected_combination.length)
-                    toast.current.show({ severity: "warn", summary: "Ricerca", detail: "Il numero di stanze selezionate non è sufficente per gli ospiti richiesti, verrà automaticamente assegnato il numero adeguato di stanze", life: 6000 });
-                }
-                props.blockUiCallaback(false)
-            } else {
-                toast.current.show({ severity: "error", summary: "Ricerca", detail: data.error, life: 3000 });
-                props.blockUiCallaback(false)
-            }
-        } catch (error) {
-            toast.current.show({ severity: "error", summary: "Ricerca", detail: "Errore durante la ricerca", life: 3000 });
-            props.blockUiCallaback(false)
-        }
-    }
-
-    const handleBookingManual = async () => {
-
-        if (standardInput + superiorInput + suiteInput > rooms) {
-            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate supera il numero di Stanze richieste", life: 3000 });
-        } else if (standardInput + superiorInput + suiteInput < rooms) {
-            toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Il numero di Stanze selezionate è inferiore al numero di Stanze richieste", life: 3000 });
-        }
-        else
-            try {
-                if (!userInfo.token && !userInfo.isLogged) {
-                    toast.current.show({ severity: "error", summary: "Ricerca", detail: "Devi effettuare il login per poter prenotare una stanza", life: 3000 });
-                    props.renderComponent('login')
-                } else {
-                    props.blockUiCallaback(true)
-                    const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/modify_booking`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": "Bearer " + userInfo.token,
-                        },
-
-                        body: JSON.stringify({
-                            new_check_in: formatDate(startDate),
-                            new_check_out: formatDate(endDate),
-                            new_guests: guests,
-                            new_room_types: bookingManualRoomsArray(),
-                            booking_id: selectedBooking?.id
-                        })
-                    })
-
-                    const data = await response.json();
-                    if (response.ok) {
-                        toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione modificata con successo", life: 3000 });
-                        setBookingSuccess(true)
-                        setBookingDetails(data.booking_details)
-                        setUserInfo({ ...userInfo, bookings: data.user_bookings })
-                        sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
-                        setUserBookings(data.user_bookings)
-                        onCompleteModify()
-                        props.blockUiCallaback(false)
-                    } else {
-                        toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
-                        props.blockUiCallaback(false)
-                    }
-                }
-            } catch (error) {
-                toast.current.show({ severity: "error", summary: "Prenotazione", detail: "Errore durante la prenotazione", life: 3000 });
-                props.blockUiCallaback(false)
-            }
-
-    };
-
     const onCompleteModify = () => {
         setIsModifying(false);
         setRoomsSuggestions({})
@@ -307,8 +287,22 @@ const ManageBookings = (props) => {
     // ###############################################
     // RENDERING
     // ###############################################
-    //Renderizza la pagina di gestione delle prenotazioni
     const renderBookingManager = () => {
+
+
+        // EVENTUALE FILTRO PER LE PRENOTAZIONI PASSATE
+        // const filterPastBookings = (bookings) => {
+        //     const today = new Date();
+        //     today.setHours(0, 0, 0, 0);
+
+        //     return bookings.filter(booking => new Date(booking.check_in) < today);
+        // }
+
+
+        // const onFilterBooking = () => {
+        //     const pastBookings = filterPastBookings(userBookings);
+        //     setUserBookings(pastBookings);
+        // }
 
         const today = new Date();
         today.setHours(0, 0, 0, 0)
@@ -409,13 +403,13 @@ const ManageBookings = (props) => {
             }
             if (revertDataToCalendarFormat(rowData.check_in) > today)
                 return <div className="flex flex-row flex-wrap justify-content-end hidden md:flex">
-                    < Button className='mr-2' style={{ height: "2.5rem", width: "2.5rem" }} severity='warning' outlined icon="pi pi-trash" onClick={() => { handleOnClickDeleteModify('delete') }}></Button>
-                    < Button className='' style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-file-edit" onClick={() => { handleOnClickDeleteModify('modify') }}></Button>
+                    < Button className='mr-2' style={{ height: "2.5rem", width: "2.5rem" }} tooltip='Cancella' tooltipOptions={{ showDelay: 500, position: 'top' }} severity='warning' outlined icon="pi pi-trash" onClick={() => { handleOnClickDeleteModify('delete') }}></Button>
+                    < Button className='' style={{ height: "2.5rem", width: "2.5rem" }} tooltip='Modifica' tooltipOptions={{ showDelay: 500, position: 'top' }} outlined icon="pi pi-file-edit" onClick={() => { handleOnClickDeleteModify('modify') }}></Button>
                 </div >
         }
 
         const bodyTemplatePrice = (rowData) => {
-            return <div className='font-bold md:ml-0 -ml-4'>{formatPrice(rowData.total_price)}</div>
+            return <div className='flex-wrap font-bold md:ml-0 -ml-4 md:mr-0 -mr-2'>{formatPrice(rowData.total_price)}</div>
         }
 
         return (

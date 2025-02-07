@@ -429,8 +429,8 @@ const ManageBookings = (props) => {
     }
 
     const headerInfo = (
-        <div className={!isModifiyng ? '-mx-3 p-1 fadein animation-duration-200' : 'surface-200 p-1 -mx-3'}>
-            <div className="flex flex-column align-items-center justify-content-center -mb-2 md:mb-0">
+        <div className={!isModifiyng ? '-mx-3 p-1 fadein animation-duration-200' : 'surface-200 -mx-2'}>
+            <div className="flex flex-column align-items-center justify-content-center mb-0">
                 {isModifiyng ? <div className='flex'>Prenotazione in modifica</div> : <div></div>}
                 <div className="flex flex-wrap justify-content-evenly align-items-center mb-1 md:mb-3">
                     <div className='flex border-1 surface-border align-items-center flex-column border-round shadow-2 p-1 m-1 w-13rem md:w-13rem md:h-4rem md:mt-1 '>
@@ -476,7 +476,7 @@ const ManageBookings = (props) => {
                 const check_in = formatDateToDisplay(startDate);
                 const check_out = formatDateToDisplay(endDate);
                 return (
-                    <div className="surface-200 -mx-3 p-1 -mt-2 -mb-3" >
+                    <div className="surface-200 -mx-3 p-1 -mt-3 -mb-3" >
                         <div className='mb-1 align-items-center justify-content-center text-center md:text-3xl text-m'>{'Nuova Prenotazione'}</div>
                         <div className="flex flex-wrap align-items-center justify-content-between text-l md:text-xl mb-3">
                             < Button className='w-3rem h-3rem  p-button-secondary p-button-outlined md:ml-3 ml-1' tooltip={'Indietro'} icon=" pi pi-undo" onClick={() => { setRoomsSuggestions({}) }}></Button >

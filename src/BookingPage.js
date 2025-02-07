@@ -513,7 +513,7 @@ const BookingPage = (props) => {
       return (
         <div >
           <div className="flex mt-6 md:mt-0 flex-column align-items-center justify-content-center relative border-1 surface-border border-round shadow-2 fadein animation-duration-500 m-2 md:md-0">
-            <DataTable stripedRows scrollable scrollHeight='45vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }}>
+            <DataTable stripedRows scrollable scrollHeight='45vh' value={groupedByType} header={header} footer={footer} style={{ width: "95vw" }} emptyMessage="Nessun suggerimento">
               <Column align={'left'} header="Foto" body={imageBodyTemplate}></Column>
               <Column align={'center'} header="Tipo Stanza" body={roomDetails} ></Column>
               <Column align={'right'} header="Numero Stanze" body={numberRooms}></Column>

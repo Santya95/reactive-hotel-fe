@@ -25,14 +25,12 @@ const ManageBookings = (props) => {
     const [guests, setGuests] = useState(0);
     const [rooms, setRooms] = useState(0);
     const [roomsSuggestion, setRoomsSuggestions] = useState({})
-    const [gropuedByTypeCombination, setGropuedByTypeCombination] = useState([])
     const [groupedByType, setGroupedByType] = useState([])
     const [manualChoiche, setManualChoiche] = useState(false)
     const [standardInput, setStandardInput] = useState(0)
     const [superiorInput, setSuperiorInput] = useState(0)
     const [suiteInput, setSuiteInput] = useState(0)
     const [totalPrice, setTotalPrice] = useState(0);
-    const [roomTypeArray, setRoomTypeArray] = useState([])
     const [bookingSuccess, setBookingSuccess] = useState(false)
     const [bookingDetails, setBookingDetails] = useState({})
     const [isModifiyng, setIsModifying] = useState(false)
@@ -225,7 +223,6 @@ const ManageBookings = (props) => {
             if (response.ok) {
                 setRoomsSuggestions(data)
                 setGroupedByType(data.room_type_counts)
-                setGropuedByTypeCombination(groupByRoomType(data.selected_combination))
                 // Se se la lunghezza di selected rooms è maggiore delle stanze selezionate, l'utente ha richiesto più stanze di quanto il numero di ospiti possano occupare
                 if (data.selected_combination.length > rooms) {
                     setRooms(data.selected_combination.length)
@@ -256,7 +253,7 @@ const ManageBookings = (props) => {
                     props.renderComponent('login')
                 } else {
                     props.blockUiCallaback(true)
-                    const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/book`, {
+                    const response = await fetch(`${process.env.REACT_APP_ENDPOINT}/modify_booking`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -264,21 +261,23 @@ const ManageBookings = (props) => {
                         },
 
                         body: JSON.stringify({
-                            check_in: formatDate(startDate),
-                            check_out: formatDate(endDate),
-                            guests: guests,
-                            room_types: bookingManualRoomsArray(),
-                            old_booking_id: selectedBooking?.id
+                            new_check_in: formatDate(startDate),
+                            new_check_out: formatDate(endDate),
+                            new_guests: guests,
+                            new_room_types: bookingManualRoomsArray(),
+                            booking_id: selectedBooking?.id
                         })
                     })
 
                     const data = await response.json();
                     if (response.ok) {
-                        toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione effettuata con successo", life: 3000 });
+                        toast.current.show({ severity: "success", summary: "Prenotazione", detail: "Prenotazione modificata con successo", life: 3000 });
                         setBookingSuccess(true)
                         setBookingDetails(data.booking_details)
                         setUserInfo({ ...userInfo, bookings: data.user_bookings })
                         sessionStorage.setItem("reactiveHoteluserInfo", JSON.stringify({ ...userInfo, bookings: data.user_bookings }));
+                        setUserBookings(data.user_bookings)
+                        onCompleteModify()
                         props.blockUiCallaback(false)
                     } else {
                         toast.current.show({ severity: "error", summary: "Prenotazione", detail: data.error, life: 3000 });
@@ -291,6 +290,20 @@ const ManageBookings = (props) => {
             }
 
     };
+
+    const onCompleteModify = () => {
+        setIsModifying(false);
+        setRoomsSuggestions({})
+        setGroupedByType([])
+        setGuests(0)
+        setRooms(0)
+        setStandardInput(0)
+        setSuperiorInput(0)
+        setSuiteInput(0)
+        setStartDate(null)
+        setEndDate(null)
+        setVisibleDialogInfo(false)
+    }
     // ###############################################
     // RENDERING
     // ###############################################
@@ -329,7 +342,7 @@ const ManageBookings = (props) => {
             return <div className='flex-column -mr-4'>
                 < div className='flex flex-row' >
                     <div>Dal: </div>
-                    <div className='font-bold ml-1'>{rowData.check_in}</div>
+                    <div className='font-bold '>{rowData.check_in}</div>
                 </div >
                 <div className='flex flex-row'>
                     <div>Al: </div>
@@ -498,7 +511,7 @@ const ManageBookings = (props) => {
                 )
             };
 
-            if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0 && !bookingSuccess) {
+            if (roomsSuggestion && Object.keys(roomsSuggestion).length > 0) {
                 return (
                     <div className=' fadein animation-duration-200'>
                         <div className='mx-2 font-semibold'>
@@ -513,7 +526,7 @@ const ManageBookings = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-content-center justify-content-evenly gap-3 mt-2">
-                            <Button label="Prenota" onClick={""} icon={"pi pi-check"} className="p-button-raised p-button-primary mt-1 -mb-3 md:mb-0 w-12rem" />
+                            <Button label="Prenota" onClick={handleBookingManual} icon={"pi pi-check"} className="p-button-raised p-button-primary mt-1 -mb-3 md:mb-0 w-12rem" />
                         </div>
                     </div>
                 )
@@ -522,7 +535,7 @@ const ManageBookings = (props) => {
 
         const renderSearch = () => {
 
-            if (Object.keys(roomsSuggestion).length === 0 && !manualChoiche && !bookingSuccess) {
+            if (Object.keys(roomsSuggestion).length === 0) {
                 return (
                     <div className='fadein animation-duration-200 font-semibold'>
                         <div className='mx-2'>

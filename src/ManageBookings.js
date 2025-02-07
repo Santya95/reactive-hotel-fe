@@ -372,7 +372,7 @@ const ManageBookings = (props) => {
             }
 
             if (revertDataToCalendarFormat(rowData.check_in) > today)
-                return <div className='flex md:ml-0 -ml-3 md:mr-0 -mr-3'>
+                return <div className='flex md:ml-0 -ml-2 md:mr-0 -mr-4'>
                     < Button className='justify-content-center md:p-button-secondary p-button-help border-2' tooltip={'Info Prenotazione'} style={{ height: "2.5rem", width: "2.5rem" }} outlined icon="pi pi-info" onClick={() => { handleOnClickInfo() }}></Button>
                 </div >
             else return <div className='flex md:ml-0 -ml-2 md:mr-0 -mr-3'>

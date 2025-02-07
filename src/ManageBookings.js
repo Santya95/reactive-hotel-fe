@@ -350,7 +350,7 @@ const ManageBookings = (props) => {
             return <div className='flex-column -mr-4'>
                 < div className='flex flex-row' >
                     <div>Stanze: </div>
-                    <div className='font-bold ml-1'>{rowData.rooms?.length > 0 ? rowData.rooms.length : 0}</div>
+                    <div className='font-bold'>{rowData.rooms?.length > 0 ? rowData.rooms.length : 0}</div>
                 </div >
                 <div className='flex flex-row'>
                     <div>Ospiti: </div>
